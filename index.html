@@ -22,25 +22,20 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            position: fixed;
+            width: 100%;
         }
 
-        /* Адаптивный контейнер: на мобильных занимает весь экран, на ПК выглядит как аккуратное приложение */
+        /* Адаптивный контейнер: на мобильных подстраивается под реальный размер вьюпорта */
         .stream-container {
             position: relative;
             width: 100%;
             height: 100%;
             max-width: 480px;
-            max-height: 100vh;
             background: #000;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: transform 0.25s ease-out;
-        }
-
-        /* Класс поднимает весь контейнер вверх, когда активен чат и клавиатура */
-        .stream-container.shifted-up {
-            transform: translateY(-40%);
         }
 
         @media (min-width: 481px) {
@@ -49,9 +44,6 @@
                 max-height: 900px;
                 border-radius: 24px;
                 box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-            }
-            .stream-container.shifted-up {
-                transform: translateY(0);
             }
         }
 
@@ -159,35 +151,21 @@
             video.src = videoSource;
         }
 
-        // Логика подъема чата и экрана при нажатии на блок чата
+        // Надежный обход ограничений Instagram WebView через Visual Viewport API
         const container = document.getElementById('streamContainer');
-        const chatOverlay = document.getElementById('chatOverlay');
 
-        // При клике/тапе на чат поднимаем контейнер вверх
-        chatOverlay.addEventListener('click', () => {
-            container.classList.add('shifted-up');
-        });
-
-        chatOverlay.addEventListener('touchstart', () => {
-            container.classList.add('shifted-up');
-        }, { passive: true });
-
-        // Если размер вьюпорта вернулся в норму (клавиатура закрылась) или кликнули выше чата — опускаем обратно
-        if (window.visualViewport) {
-            const initialHeight = window.visualViewport.height;
-            window.visualViewport.addEventListener('resize', () => {
-                if (window.visualViewport.height >= initialHeight - 50) {
-                    container.classList.remove('shifted-up');
-                }
-            });
+        function updateLayoutForKeyboard() {
+            if (window.visualViewport) {
+                // Устанавливаем высоту контейнера точно по высоте видимой зоны экрана (с учетом открытой клавиатуры)
+                container.style.height = window.visualViewport.height + 'px';
+                window.scrollTo(0, 0);
+            }
         }
 
-        // Клик вне чата (по сайту/видео) возвращает всё на место
-        document.addEventListener('click', (e) => {
-            if (!chatOverlay.contains(e.target)) {
-                container.classList.remove('shifted-up');
-            }
-        });
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', updateLayoutForKeyboard);
+            window.visualViewport.addEventListener('scroll', updateLayoutForKeyboard);
+        }
 
         // Защита от ухода телефона в спящий режим (Wake Lock + фоновый аудио-сигнал + пинг)
         let wakeLock = null;
