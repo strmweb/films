@@ -22,6 +22,7 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            position: fixed; /* Фиксируем тело страницы, чтобы убрать лишние скроллы в Instagram */
         }
 
         /* Адаптивный контейнер: на мобильных занимает весь экран, на ПК выглядит как аккуратное приложение */
@@ -35,7 +36,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: height 0.15s ease-out;
+            transition: transform 0.2s ease, height 0.2s ease;
         }
 
         @media (min-width: 481px) {
@@ -151,19 +152,31 @@
             video.src = videoSource;
         }
 
-        // Фикс для клавиатуры в Instagram / мобильных браузерах через Visual Viewport API
+        // Продвинутый фикс клавиатуры для Instagram WebView и мобильных браузеров
+        const container = document.getElementById('streamContainer');
+        const initialHeight = window.innerHeight;
+
+        function handleResize() {
+            const currentHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+            const heightDiff = initialHeight - currentHeight;
+
+            // Если разница большая (появилась клавиатура, обычно > 130-150px)
+            if (heightDiff > 130) {
+                // Сжимаем контейнер по высоте вьюпорта или поднимаем его вверх
+                container.style.height = currentHeight + 'px';
+                window.scrollTo(0, 0);
+            } else {
+                // Возвращаем обратно, когда клавиатура закрылась
+                container.style.height = '100%';
+                window.scrollTo(0, 0);
+            }
+        }
+
         if (window.visualViewport) {
-            const container = document.getElementById('streamContainer');
-            window.visualViewport.addEventListener('resize', () => {
-                // Если высота вьюпорта уменьшилась, значит вылезла клавиатура
-                const diff = window.innerHeight - window.visualViewport.height;
-                if (diff > 100) {
-                    container.style.height = window.visualViewport.height + 'px';
-                    window.scrollTo(0, 0);
-                } else {
-                    container.style.height = '100%';
-                }
-            });
+            window.visualViewport.addEventListener('resize', handleResize);
+            window.visualViewport.addEventListener('scroll', handleResize);
+        } else {
+            window.addEventListener('resize', handleResize);
         }
 
         // Защита от ухода телефона в спящий режим (Wake Lock + фоновый аудио-сигнал + пинг)
