@@ -97,7 +97,7 @@
             background: transparent;
         }
 
-        /* Tвой встроенный чат Cbox */
+        /* Твой встроенный чат Cbox */
         .chat-box iframe {
             width: 100%;
             height: 100%;
@@ -127,8 +127,13 @@
         </div>
     </div>
 
+    <!-- Невидимый элемент для предотвращения засыпания телефона -->
+    <audio id="keepAliveAudio" loop style="display:none;">
+        <source src="data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YRAAAAAAAA==" type="audio/wav">
+    </audio>
+
     <script>
-        const videoSource = "https://o12.anwap.be/ohls/LpCRXyzOPrQYvMy9aA105w/1790123606/CHelovek-pauk_Novyj_denq-48515_(anwap.org).m3u8"; 
+        const videoSource = "https://.m3u8"; 
 
         const video = document.getElementById('videoElement');
         video.volume = 1.0;
@@ -145,7 +150,7 @@
             video.src = videoSource;
         }
 
-        // Защита от ухода телефона в спящий режим
+        // Защита от ухода телефона в спящий режим (Wake Lock + фоновый аудио-сигнал)
         let wakeLock = null;
         async function requestWakeLock() {
             if ('wakeLock' in navigator) {
@@ -154,21 +159,27 @@
                     wakeLock.addEventListener('release', () => {
                         wakeLock = null;
                     });
-                } catch (err) {
-                    // Ошибки могут возникать, если страница не в фокусе
-                }
+                } catch (err) {}
             }
         }
 
-        // Запрашиваем блокировку сна при загрузке
         requestWakeLock();
 
-        // Если пользователь сворачивал браузер и вернулся, запрашиваем снова
         document.addEventListener('visibilitychange', async () => {
             if (wakeLock !== null && document.visibilityState === 'visible') {
                 await requestWakeLock();
             }
         });
+
+        // Запуск фонового аудио для предотвращения засыпания системы
+        const keepAliveAudio = document.getElementById('keepAliveAudio');
+        function startKeepAlive() {
+            keepAliveAudio.play().catch(() => {});
+        }
+
+        window.addEventListener('click', startKeepAlive, { once: true });
+        window.addEventListener('touchstart', startKeepAlive, { once: true });
+        setTimeout(startKeepAlive, 1000);
     </script>
 
 </body>
