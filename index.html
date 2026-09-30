@@ -97,7 +97,7 @@
             background: transparent;
         }
 
-        /* Твой встроенный чат Cbox */
+        /* Tвой встроенный чат Cbox */
         .chat-box iframe {
             width: 100%;
             height: 100%;
@@ -144,6 +144,31 @@
         } else {
             video.src = videoSource;
         }
+
+        // Защита от ухода телефона в спящий режим
+        let wakeLock = null;
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => {
+                        wakeLock = null;
+                    });
+                } catch (err) {
+                    // Ошибки могут возникать, если страница не в фокусе
+                }
+            }
+        }
+
+        // Запрашиваем блокировку сна при загрузке
+        requestWakeLock();
+
+        // Если пользователь сворачивал браузер и вернулся, запрашиваем снова
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                await requestWakeLock();
+            }
+        });
     </script>
 
 </body>
