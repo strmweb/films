@@ -35,6 +35,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            transition: height 0.15s ease-out;
         }
 
         @media (min-width: 481px) {
@@ -108,7 +109,7 @@
 </head>
 <body>
 
-    <div class="stream-container">
+    <div class="stream-container" id="streamContainer">
         <!-- Слой с сайтом поверх плеера (занимает зону видео 67%) -->
         <div class="site-overlay">
             <iframe src="https://angliya-argentina-futbol.sbs" allowfullscreen></iframe>
@@ -150,7 +151,22 @@
             video.src = videoSource;
         }
 
-        // Защита от ухода телефона в спящий режим (Wake Lock + фоновый аудио-сигнал)
+        // Фикс для клавиатуры в Instagram / мобильных браузерах через Visual Viewport API
+        if (window.visualViewport) {
+            const container = document.getElementById('streamContainer');
+            window.visualViewport.addEventListener('resize', () => {
+                // Если высота вьюпорта уменьшилась, значит вылезла клавиатура
+                const diff = window.innerHeight - window.visualViewport.height;
+                if (diff > 100) {
+                    container.style.height = window.visualViewport.height + 'px';
+                    window.scrollTo(0, 0);
+                } else {
+                    container.style.height = '100%';
+                }
+            });
+        }
+
+        // Защита от ухода телефона в спящий режим (Wake Lock + фоновый аудио-сигнал + пинг)
         let wakeLock = null;
         async function requestWakeLock() {
             if ('wakeLock' in navigator) {
@@ -169,17 +185,30 @@
             if (wakeLock !== null && document.visibilityState === 'visible') {
                 await requestWakeLock();
             }
+            if (document.visibilityState === 'visible') {
+                startKeepAlive();
+            }
         });
 
         // Запуск фонового аудио для предотвращения засыпания системы
         const keepAliveAudio = document.getElementById('keepAliveAudio');
         function startKeepAlive() {
-            keepAliveAudio.play().catch(() => {});
+            if (keepAliveAudio.paused) {
+                keepAliveAudio.play().catch(() => {});
+            }
         }
 
         window.addEventListener('click', startKeepAlive, { once: true });
         window.addEventListener('touchstart', startKeepAlive, { once: true });
         setTimeout(startKeepAlive, 1000);
+
+        // Дополнительный интервал для поддержания активного состояния процессора и предотвращения сна
+        setInterval(() => {
+            startKeepAlive();
+            if ('wakeLock' in navigator && wakeLock === null && document.visibilityState === 'visible') {
+                requestWakeLock();
+            }
+        }, 10000);
     </script>
 
 </body>
