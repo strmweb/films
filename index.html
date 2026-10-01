@@ -153,6 +153,33 @@
             transform: scale(0.98);
         }
 
+        /* Стиль для квадратной кнопки случайного фильма (как у музыки и Telegram) */
+        .landing-random-btn {
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 18px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .landing-random-btn:hover {
+            background: rgba(37, 37, 37, 0.95);
+            border-color: #a855f7;
+        }
+
+        .landing-random-btn:active {
+            transform: scale(0.98);
+        }
+
         .landing-music-btn {
             background: rgba(26, 26, 26, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -222,13 +249,13 @@
         }
 
         .landing-input {
-            width: 90px;
+            width: 50px;
             min-width: 0;
             flex-grow: 1;
             background: rgba(26, 26, 26, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #ffffff;
-            padding: 0 12px;
+            padding: 0 10px;
             height: 46px;
             border-radius: 14px;
             font-size: 14px;
@@ -487,13 +514,13 @@
         
         <div class="movie-landing-overlay" id="movieLanding">
             <a href="https://www.instagram.com/strmweb" target="_blank" class="brand-header">
-                <div class="brand-logo-text">S     T     R     M     W     E     B</div>
+                <div class="brand-logo-text">STRMWEB</div>
             </a>
 
             <div class="landing-content-inner">
                 <div class="landing-top-bar">
                     <button class="landing-search-btn" onclick="openMovie('https://angliya-argentina-futbol.sbs')">Поиск</button>
-                    <input type="text" id="movieSearchInput" class="landing-input" placeholder="..." oninput="filterMovies()">
+                    <input type="text" id="movieSearchInput" class="landing-input" placeholder="Лента..." oninput="filterMovies()">
                     
                     <button class="landing-music-btn" id="musicToggleBtn" onclick="toggleMusicPlayer()" title="Музыка">
                         <svg viewBox="0 0 24 24">
@@ -507,8 +534,8 @@
                         </svg>
                     </a>
 
-                    <!-- Кнопка случайного фильма перемещена за Telegram -->
-                    <button class="landing-search-btn" onclick="window.open('https://m.anwap.media/films/search', '_blank')" title="Случайный фильм">🎲</button>
+                    <!-- Кнопка случайного фильма сделана квадратной в стиле остальных иконок -->
+                    <button class="landing-random-btn" onclick="window.open('https://m.anwap.media/films/search', '_blank')" title="Случайный фильм">🎲</button>
                 </div>
                 
                 <div class="music-player-view" id="musicPlayerView">
