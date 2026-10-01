@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title></title>
-    <!-- Подключаем библиотеку HLS.js для воспроизведения m3u8 потоков -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         * {
@@ -25,7 +24,6 @@
             position: fixed;
         }
 
-        /* Адаптивный контейнер: на мобильных подстраивается под реальный размер вьюпорта */
         .stream-container {
             position: relative;
             width: 100%;
@@ -46,7 +44,6 @@
             }
         }
 
-        /* Видео занимает строго верхние 67% экрана устройства */
         .video-player {
             position: absolute;
             top: 0;
@@ -57,7 +54,6 @@
             background: #000;
         }
 
-        /* Слой с сайтом поверх плеера (занимает зону видео 67%) */
         .site-overlay {
             position: absolute;
             top: 0;
@@ -74,7 +70,6 @@
             border: none;
         }
 
-        /* --- ФРЕЙМ-ЛЕНТА (заходит впритык к границе чата снизу) --- */
         .movie-landing-overlay {
             position: absolute;
             top: 0;
@@ -91,7 +86,6 @@
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        /* Брендинг STRMWEB в самом верху от края до края */
         .brand-header {
             width: 100%;
             text-align: center;
@@ -130,18 +124,20 @@
 
         .landing-top-bar {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             margin-bottom: 16px;
             flex-shrink: 0;
+            align-items: center;
         }
 
         .landing-search-btn {
             background: linear-gradient(135deg, #7928ca 0%, #a855f7 100%);
             border: none;
             color: #ffffff;
-            padding: 0 14px;
+            padding: 0 12px;
+            height: 46px;
             border-radius: 14px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
             text-align: center;
@@ -161,8 +157,8 @@
             background: rgba(26, 26, 26, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #ffffff;
-            width: 50px;
-            height: 50px;
+            width: 46px;
+            height: 46px;
             border-radius: 14px;
             cursor: pointer;
             display: flex;
@@ -189,8 +185,8 @@
         }
 
         .landing-music-btn svg {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             fill: #ffffff;
         }
 
@@ -198,8 +194,8 @@
             background: rgba(26, 26, 26, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #ffffff;
-            width: 50px;
-            height: 50px;
+            width: 46px;
+            height: 46px;
             border-radius: 14px;
             cursor: pointer;
             display: flex;
@@ -220,19 +216,22 @@
         }
 
         .landing-telegram-btn svg {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             fill: #24a1de;
         }
 
         .landing-input {
+            width: 90px;
+            min-width: 0;
             flex-grow: 1;
             background: rgba(26, 26, 26, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #ffffff;
-            padding: 14px 16px;
+            padding: 0 12px;
+            height: 46px;
             border-radius: 14px;
-            font-size: 15px;
+            font-size: 14px;
             outline: none;
             transition: border-color 0.2s ease;
         }
@@ -389,7 +388,6 @@
             overflow: hidden;
         }
 
-        /* Квадратный постер с обрезкой сверху и снизу */
         .movie-poster {
             width: 38px;
             height: 38px;
@@ -489,13 +487,13 @@
         
         <div class="movie-landing-overlay" id="movieLanding">
             <a href="https://www.instagram.com/strmweb" target="_blank" class="brand-header">
-                <div class="brand-logo-text">STRMWEB</div>
+                <div class="brand-logo-text">S     T     R     M     W     E     B</div>
             </a>
 
             <div class="landing-content-inner">
                 <div class="landing-top-bar">
                     <button class="landing-search-btn" onclick="openMovie('https://angliya-argentina-futbol.sbs')">Поиск</button>
-                    <input type="text" id="movieSearchInput" class="landing-input" placeholder="Лента фильмов..." oninput="filterMovies()">
+                    <input type="text" id="movieSearchInput" class="landing-input" placeholder="..." oninput="filterMovies()">
                     
                     <button class="landing-music-btn" id="musicToggleBtn" onclick="toggleMusicPlayer()" title="Музыка">
                         <svg viewBox="0 0 24 24">
@@ -508,6 +506,9 @@
                             <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.14-.26.26-.534.26l.213-3.053 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.654-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
                         </svg>
                     </a>
+
+                    <!-- Кнопка случайного фильма перемещена за Telegram -->
+                    <button class="landing-search-btn" onclick="window.open('https://m.anwap.media/films/search', '_blank')" title="Случайный фильм">🎲</button>
                 </div>
                 
                 <div class="music-player-view" id="musicPlayerView">
@@ -578,7 +579,6 @@
         (https://argentina-angliya-match.sbs/series/1431133/ Поколение Ви)
         (https://argentina-angliya-match.sbs/series/4763717/ Пацаны: Осатанелые)
 
-        
         https://argentina-angliya-match.sbs/film/507/
         Терминатор https://media.themoviedb.org/t/p/w188_and_h282_face/hcItc8IMO0WKyRWPGkI6xtKVu6X.jpg
         (https://argentina-angliya-match.sbs/film/507/ Терминатор 1)
@@ -599,7 +599,6 @@
         (https://argentina-angliya-match.sbs/series/4324714/ Ходячие мертвецы: Дэрил Диксон)
         (https://argentina-angliya-match.sbs/series/4707059/ Истории ходячих мертвецов)
         (https://argentina-angliya-match.sbs/series/846892/ Бойтесь ходячих мертвецов)
-
 
         https://argentina-angliya-match.sbs/series/89587/
         Скользящие https://media.themoviedb.org/t/p/w188_and_h282_face/pXVzVcaaAdzkNcyFJkEVhWwHnsw.jpg
