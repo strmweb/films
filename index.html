@@ -80,7 +80,7 @@
             top: 0;
             left: 0;
             right: 0;
-            bottom: 33%; /* Изменено: теперь заходит до самой границы чата впритык */
+            bottom: 33%; 
             z-index: 8;
             background: rgba(11, 11, 11, 0.96);
             backdrop-filter: blur(12px);
@@ -363,7 +363,7 @@
             background: rgba(26, 26, 26, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #ffffff;
-            padding: 14px 16px;
+            padding: 10px 14px;
             border-radius: 12px;
             font-size: 15px;
             font-weight: 500;
@@ -381,9 +381,29 @@
             border-color: #7928ca;
         }
 
+        .movie-btn-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        /* Квадратный постер с обрезкой сверху и снизу */
+        .movie-poster {
+            width: 38px;
+            height: 38px;
+            object-fit: cover;
+            border-radius: 8px;
+            flex-shrink: 0;
+            background: #1a1a1a;
+        }
+
         .movie-btn span {
             color: #a855f7;
             font-size: 13px;
+            flex-shrink: 0;
+            margin-left: 8px;
         }
 
         .sub-buttons-container {
@@ -403,7 +423,7 @@
             background: rgba(18, 18, 18, 0.9);
             border: 1px solid rgba(168, 85, 247, 0.3);
             color: #e2e2e2;
-            padding: 12px 14px;
+            padding: 8px 12px;
             border-radius: 10px;
             font-size: 14px;
             cursor: pointer;
@@ -423,6 +443,8 @@
         .sub-movie-btn span {
             color: #a855f7;
             font-size: 12px;
+            flex-shrink: 0;
+            margin-left: 8px;
         }
 
         .movie-btn.highlighted, .sub-movie-btn.highlighted {
@@ -538,30 +560,20 @@
     </audio>
 
     <script>
-        // ==============================================================
-        // ПРИНУДИТЕЛЬНЫЙ СБРОС СОСТОЯНИЯ ПРИ ПОВТОРНОМ ОТКРЫТИИ
-        // ==============================================================
         if (performance.navigation.type === 2 || window.performance.getEntriesByType("navigation")[0]?.type === "back_forward") {
             sessionStorage.clear();
             window.location.replace(window.location.pathname);
         }
 
-        // ==============================================================
-        // СПИСОК ПЛЕЙЛИСТОВ YOUTUBE
-        // ==============================================================
         const rawPlaylistsText = `
         https://youtube.com/playlist?list=PLKy3bbkdNbdHoqSEsOQHjYXtmNZ_Z1yEt&si=O0GngFGdm-3yv17X
         https://youtube.com/playlist?list=PLaiVk1DGd9TBM4iKvWBIinUFfeKB5Iacg&si=Y1B5_GBrqa-pN95O
         `;
-        // ==============================================================
 
-        // ==============================================================
-        // СПИСОК ФИЛЬМОВ
-        // ==============================================================
         const rawMoviesText = `
         https://argentina-angliya-match.sbs/film/507/
-        Терминатор
-        (https://argentina-angliya-match.sbs/film/507/ Терминатор)
+        Терминатор https://media.themoviedb.org/t/p/w188_and_h282_face/hcItc8IMO0WKyRWPGkI6xtKVu6X.jpg
+        (https://argentina-angliya-match.sbs/film/507/ Терминатор 1)
         (https://argentina-angliya-match.sbs/film/444/ Терминатор 2)
         (https://argentina-angliya-match.sbs/film/319/ Терминатор 3)
         (https://argentina-angliya-match.sbs/film/160932/ Терминатор 4)
@@ -569,32 +581,40 @@
         (https://argentina-angliya-match.sbs/film/1025082/ Терминатор 6)
 
         https://argentina-angliya-match.sbs/series/685246/
-        Рик и Морти
+        Рик и Морти https://media.themoviedb.org/t/p/w188_and_h282_face/6D1NA4IMUFI8lBNuCBUlp7eLYDP.jpg
 
         https://argentina-angliya-match.sbs/film/508161/
-        Ходячие мертвецы
+        Ходячие мертвецы https://media.themoviedb.org/t/p/w188_and_h282_face/3metsxLVhlJU0mNj5gVfKIih0EF.jpg
         (https://argentina-angliya-match.sbs/film/508161/ Ходячие мертвецы)
+(https://argentina-angliya-match.sbs/series/4898924/ Ходячие мертвецы: Мертвый город)
         (https://argentina-angliya-match.sbs/film/1245667/ Ходячие мертвецы: Выжившие)
+(https://argentina-angliya-match.sbs/series/4324714/ Ходячие мертвецы: Дэрил Диксон)
+(https://argentina-angliya-match.sbs/series/4707059/ Истории ходячих мертвецов)
+(https://argentina-angliya-match.sbs/series/846892/ Бойтесь ходячих мертвецов)
+
 
         https://argentina-angliya-match.sbs/series/89587/
-        Скользящие
+        Скользящие https://media.themoviedb.org/t/p/w188_and_h282_face/pXVzVcaaAdzkNcyFJkEVhWwHnsw.jpg
 
         https://argentina-angliya-match.sbs/series/8607693/
-        Президент Кертис
+        Президент Кертис https://media.themoviedb.org/t/p/w188_and_h282_face/4YwQKEfizLXKemWYv5G4FAvQcTA.jpg
 
         https://argentina-angliya-match.sbs/series/277537/
-        Декстер
+        Декстер https://media.themoviedb.org/t/p/w188_and_h282_face/6Dlx8ck7zRKIxnFNJ1G1tXZ6p9D.jpg
         (https://argentina-angliya-match.sbs/series/277537/ Декстер)
         (https://argentina-angliya-match.sbs/film/4526286/ Декстер: Новая кровь)
         (https://argentina-angliya-match.sbs/film/5626999/ Декстер: Первородный грех)
         (https://argentina-angliya-match.sbs/film/6058297/ Декстер: Воскрешение)
         `;
-        // ==============================================================
 
         let ytPlayer = null;
         let playlistUrls = [];
         let currentPlaylistIndex = 0;
         let isMusicOpen = false;
+
+        let allParsedMovies = [];
+        let renderedCount = 0;
+        const pageSize = 20;
 
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -685,14 +705,10 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            // Принудительно очищаем iframe при каждой загрузке/возврату
             document.getElementById('siteIframe').src = "about:blank";
             if (window.location.hash) {
                 history.replaceState(null, '', window.location.pathname);
             }
-
-            const container = document.getElementById('moviesListContainer');
-            container.innerHTML = ""; 
 
             const lines = rawMoviesText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
             
@@ -716,9 +732,20 @@
                         if (currentMovie) {
                             movies.push(currentMovie);
                         }
+                        
+                        const titleLine = lines[i+1];
+                        let title = titleLine;
+                        let poster = "";
+                        const firstSpace = titleLine.indexOf('http');
+                        if (firstSpace !== -1) {
+                            title = titleLine.slice(0, firstSpace).trim();
+                            poster = titleLine.slice(firstSpace).trim();
+                        }
+
                         currentMovie = {
                             url: lines[i],
-                            title: lines[i+1],
+                            title: title,
+                            poster: poster,
                             subButtons: []
                         };
                         i++; 
@@ -730,8 +757,26 @@
             }
 
             movies.sort(() => Math.random() - 0.5);
+            allParsedMovies = movies;
 
-            movies.forEach((movie) => {
+            renderMoreMovies(pageSize);
+
+            const landingOverlay = document.getElementById('movieLanding');
+            landingOverlay.addEventListener('scroll', () => {
+                if (landingOverlay.scrollTop + landingOverlay.clientHeight >= landingOverlay.scrollHeight - 200) {
+                    renderMoreMovies(pageSize);
+                }
+            });
+        });
+
+        function renderMoreMovies(count) {
+            const container = document.getElementById('moviesListContainer');
+            const endIndex = Math.min(renderedCount + count, allParsedMovies.length);
+            
+            if (renderedCount >= allParsedMovies.length) return;
+
+            for (let i = renderedCount; i < endIndex; i++) {
+                const movie = allParsedMovies[i];
                 const card = document.createElement('div');
                 card.className = 'movie-card';
 
@@ -739,15 +784,24 @@
                 btn.className = 'movie-btn';
                 btn.dataset.title = movie.title.toLowerCase();
                 
+                let innerHtmlContent = `<div class="movie-btn-content">`;
+                if (movie.poster) {
+                    innerHtmlContent += `<img src="${movie.poster}" class="movie-poster" alt="">`;
+                }
+                innerHtmlContent += `<span>${movie.title}</span></div>`;
+
                 if (movie.subButtons.length > 0) {
-                    btn.innerHTML = `${movie.title} <span>Развернуть ▼</span>`;
+                    innerHtmlContent += `<span>Развернуть ▼</span>`;
+                    btn.innerHTML = innerHtmlContent;
                     btn.onclick = () => {
                         card.classList.toggle('open');
-                        const span = btn.querySelector('span');
-                        span.textContent = card.classList.contains('open') ? 'Свернуть ▲' : 'Развернуть ▼';
+                        const spans = btn.querySelectorAll('span');
+                        const arrowSpan = spans[spans.length - 1];
+                        arrowSpan.textContent = card.classList.contains('open') ? 'Свернуть ▲' : 'Развернуть ▼';
                     };
                 } else {
-                    btn.innerHTML = `${movie.title} <span>Смотреть ▶</span>`;
+                    innerHtmlContent += `<span>Смотреть ▶</span>`;
+                    btn.innerHTML = innerHtmlContent;
                     btn.onclick = () => openMovie(movie.url);
                 }
                 card.appendChild(btn);
@@ -769,8 +823,9 @@
                 }
 
                 container.appendChild(card);
-            });
-        });
+            }
+            renderedCount = endIndex;
+        }
 
         function filterMovies() {
             const query = document.getElementById('movieSearchInput').value.toLowerCase().trim();
@@ -779,14 +834,24 @@
                 toggleMusicPlayer();
             }
 
-            const allButtons = document.querySelectorAll('.movies-list-container button');
+            if (query.length < 3) {
+                document.querySelectorAll('.movies-list-container button').forEach(btn => btn.classList.remove('highlighted'));
+                return;
+            }
 
+            let found = false;
+            document.querySelectorAll('.movies-list-container button').forEach(btn => {
+                if ((btn.dataset.title || "").includes(query)) found = true;
+            });
+
+            if (!found && renderedCount < allParsedMovies.length) {
+                renderMoreMovies(allParsedMovies.length);
+            }
+
+            const allButtons = document.querySelectorAll('.movies-list-container button');
             allButtons.forEach(btn => btn.classList.remove('highlighted'));
 
-            if (query.length < 3) return;
-
             let firstMatch = null;
-
             allButtons.forEach(btn => {
                 const title = btn.dataset.title || "";
                 if (title.includes(query)) {
@@ -796,8 +861,9 @@
                         const card = btn.closest('.movie-card');
                         if (card) {
                             card.classList.add('open');
-                            const mainBtnSpan = card.querySelector('.movie-btn span');
-                            if (mainBtnSpan) mainBtnSpan.textContent = 'Свернуть ▲';
+                            const spans = card.querySelectorAll('.movie-btn span');
+                            const arrowSpan = spans[spans.length - 1];
+                            if (arrowSpan) arrowSpan.textContent = 'Свернуть ▲';
                         }
                     }
 
