@@ -23,7 +23,6 @@
             align-items: center;
             overflow: hidden;
             position: fixed;
-            width: 100%;
         }
 
         /* Адаптивный контейнер: на мобильных подстраивается под реальный размер вьюпорта */
@@ -47,26 +46,26 @@
             }
         }
 
-        /* Видео занимает строго верхние 67% экрана устройства, подстраиваясь под любые пропорции */
+        /* Видео занимает строго верхние 67% экрана устройства */
         .video-player {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 67%; 
-            object-fit: contain; /* Сохраняет пропорции видео без искажений */
+            object-fit: contain;
             background: #000;
         }
 
-        /* Слой-накладка для сайта (открывается поверх плеера в той же зоне 67%) */
+        /* Слой с сайтом поверх плеера (занимает зону видео 67%) */
         .site-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 67%;
-            z-index: 5; /* Находится поверх видео, но ниже чата */
-            background: #000;
+            z-index: 5;
+            background: #0b0b0b;
         }
 
         .site-overlay iframe {
@@ -75,7 +74,386 @@
             border: none;
         }
 
-        /* Панель чата снизу: занимает ровно 1/3 (33%) экрана на любом устройстве */
+        /* --- ФРЕЙМ-ЛЕНТА (заходит немного под чат снизу) --- */
+        .movie-landing-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 28%; /* Заходит чуть ниже границы 33%, перекрывая верх чата */
+            z-index: 8;
+            background: rgba(11, 11, 11, 0.96);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            padding: 0; /* Убираем общие отступы, чтобы шапка прилегала к краям */
+            overflow-y: auto;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Брендинг STRMWEB в самом верху от края до края */
+        .brand-header {
+            width: 100%;
+            text-align: center;
+            padding: 12px 0;
+            background: rgba(18, 18, 18, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            text-decoration: none;
+            display: block;
+            flex-shrink: 0;
+            margin-bottom: 16px;
+        }
+
+        .brand-logo-text {
+            font-size: 18px;
+            font-weight: 850;
+            letter-spacing: 12px; /* Сильное разряжение для растягивания от края до края */
+            color: #ffffff;
+            text-transform: uppercase;
+            text-shadow: 0 2px 12px rgba(168, 85, 247, 0.5);
+            transition: opacity 0.2s ease;
+            width: 100%;
+            text-align: center;
+            padding-left: 12px; /* компенсация letter-spacing для идеального визуального центра */
+        }
+
+        .brand-header:hover .brand-logo-text {
+            opacity: 0.8;
+        }
+
+        /* Контейнер для внутреннего содержимого ленты (чтобы поля ввода и списки были с отступами) */
+        .landing-content-inner {
+            display: flex;
+            flex-direction: column;
+            padding: 0 16px 16px 16px;
+            flex-grow: 1;
+        }
+
+        /* Верхняя панель управления в ленте (кнопка поиск + инпут + кнопка музыка + кнопка Telegram) */
+        .landing-top-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        /* Кнопка поиск внутри ленты */
+        .landing-search-btn {
+            background: linear-gradient(135deg, #7928ca 0%, #a855f7 100%);
+            border: none;
+            color: #ffffff;
+            padding: 0 14px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(121, 40, 202, 0.4);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .landing-search-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Кнопка Музыка */
+        .landing-music-btn {
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .landing-music-btn:hover {
+            background: rgba(37, 37, 37, 0.95);
+            border-color: #a855f7;
+        }
+
+        .landing-music-btn.active {
+            background: rgba(168, 85, 247, 0.3);
+            border-color: #a855f7;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+        }
+
+        .landing-music-btn:active {
+            transform: scale(0.98);
+        }
+
+        .landing-music-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: #ffffff;
+        }
+
+        /* Кнопка Telegram с логотипом */
+        .landing-telegram-btn {
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .landing-telegram-btn:hover {
+            background: rgba(37, 37, 37, 0.95);
+            border-color: #24a1de;
+        }
+
+        .landing-telegram-btn:active {
+            transform: scale(0.98);
+        }
+
+        .landing-telegram-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: #24a1de;
+        }
+
+        /* Поле ввода для поиска по ключевым словам */
+        .landing-input {
+            flex-grow: 1;
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            padding: 14px 16px;
+            border-radius: 14px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .landing-input:focus {
+            border-color: #a855f7;
+        }
+
+        /* --- СЕКЦИЯ МУЗЫКАЛЬНОГО ПЛЕЕРА --- */
+        .music-player-view {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 4px 0;
+            flex-grow: 1;
+        }
+
+        .music-player-view.active {
+            display: flex;
+        }
+
+        /* Размер плеера */
+        .youtube-embed-wrapper {
+            width: 100%;
+            height: 210px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #111;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .youtube-embed-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .music-controls-bar {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .music-ctrl-btn {
+            flex: 1;
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .music-ctrl-btn:hover {
+            background: rgba(37, 37, 37, 0.95);
+            border-color: #a855f7;
+        }
+
+        .music-ctrl-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* УВЕЛИЧЕННЫЙ ПО ВЫСОТЕ ЭКВАЛАЙЗЕР */
+        .equalizer-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 4px;
+            height: 80px; /* Увеличено с 40px до 80px */
+            width: 100%;
+            padding: 8px 10px;
+            background: rgba(18, 18, 18, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+        }
+
+        .eq-bar {
+            flex-grow: 1;
+            height: 100%;
+            background: linear-gradient(to top, #7928ca, #a855f7);
+            border-radius: 4px;
+            animation: equalize 1.2s ease-in-out infinite alternate;
+            transform-origin: bottom;
+        }
+
+        .eq-bar:nth-child(1) { animation-duration: 0.7s; }
+        .eq-bar:nth-child(2) { animation-duration: 0.4s; }
+        .eq-bar:nth-child(3) { animation-duration: 0.9s; }
+        .eq-bar:nth-child(4) { animation-duration: 0.5s; }
+        .eq-bar:nth-child(5) { animation-duration: 0.8s; }
+        .eq-bar:nth-child(6) { animation-duration: 0.6s; }
+        .eq-bar:nth-child(7) { animation-duration: 1.0s; }
+        .eq-bar:nth-child(8) { animation-duration: 0.45s; }
+        .eq-bar:nth-child(9) { animation-duration: 0.85s; }
+        .eq-bar:nth-child(10) { animation-duration: 0.65s; }
+        .eq-bar:nth-child(11) { animation-duration: 0.75s; }
+        .eq-bar:nth-child(12) { animation-duration: 0.55s; }
+        .eq-bar:nth-child(13) { animation-duration: 0.95s; }
+        .eq-bar:nth-child(14) { animation-duration: 0.5s; }
+        .eq-bar:nth-child(15) { animation-duration: 0.8s; }
+
+        @keyframes equalize {
+            0% {
+                transform: scaleY(0.25);
+            }
+            50% {
+                transform: scaleY(1.0);
+            }
+            100% {
+                transform: scaleY(0.45);
+            }
+        }
+        /* ---------------------------------- */
+
+        .movies-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .movies-list-container.hidden {
+            display: none;
+        }
+
+        /* Обертка для карточки фильма (может содержать подкнопки) */
+        .movie-card {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .movie-btn {
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.25s ease;
+            width: 100%;
+        }
+
+        .movie-btn:hover {
+            background: rgba(37, 37, 37, 0.95);
+            border-color: #7928ca;
+        }
+
+        .movie-btn span {
+            color: #a855f7;
+            font-size: 13px;
+        }
+
+        /* Контейнер для подкнопок (скрыт по умолчанию) */
+        .sub-buttons-container {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            padding-left: 16px;
+            border-left: 2px solid #7928ca;
+            margin-top: 4px;
+        }
+
+        .movie-card.open .sub-buttons-container {
+            display: flex;
+        }
+
+        /* Стиль подкнопок */
+        .sub-movie-btn {
+            background: rgba(18, 18, 18, 0.9);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            color: #e2e2e2;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .sub-movie-btn:hover {
+            background: rgba(37, 37, 37, 0.95);
+            border-color: #a855f7;
+            color: #ffffff;
+        }
+
+        .sub-movie-btn span {
+            color: #a855f7;
+            font-size: 12px;
+        }
+
+        /* Эффект подсветки найденной кнопки */
+        .movie-btn.highlighted, .sub-movie-btn.highlighted {
+            border-color: #a855f7 !important;
+            background: rgba(168, 85, 247, 0.25) !important;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+            transform: scale(1.02);
+        }
+        /* --------------------------------------------------------- */
+
+        /* Панель чата снизу: занимает ровно 1/3 (33%) экрана */
         .chat-overlay {
             position: absolute;
             bottom: 0;
@@ -90,7 +468,6 @@
             z-index: 10;
         }
 
-        /* Обертка чата заполняет всю ширину */
         .chat-box {
             width: 100%;
             height: 100%;
@@ -98,7 +475,6 @@
             background: transparent;
         }
 
-        /* Твой встроенный чат Cbox */
         .chat-box iframe {
             width: 100%;
             height: 100%;
@@ -110,20 +486,84 @@
 <body>
 
     <div class="stream-container" id="streamContainer">
-        <!-- Слой с сайтом поверх плеера (занимает зону видео 67%) -->
-        <div class="site-overlay">
-            <iframe src="https://angliya-argentina-futbol.sbs" allowfullscreen></iframe>
+        
+        <!-- ФРЕЙМ-ЛЕНТА НА ВЕСЬ ЭКРАН С ЗАХОДОМ ПОД ЧАТ -->
+        <div class="movie-landing-overlay" id="movieLanding">
+            <!-- Растянутый по всей ширине экрана минималистичный логотип STRMWEB -->
+            <a href="https://www.instagram.com/strmweb" target="_blank" class="brand-header">
+                <div class="brand-logo-text">STRMWEB</div>
+            </a>
+
+            <div class="landing-content-inner">
+                <!-- Верхняя панель: Поиск + Инпут + Кнопка Музыка + Кнопка Telegram -->
+                <div class="landing-top-bar">
+                    <button class="landing-search-btn" onclick="revealSite()">Поиск</button>
+                    <input type="text" id="movieSearchInput" class="landing-input" placeholder="Лента фильмов..." oninput="filterMovies()">
+                    
+                    <!-- Интерактивная кнопка Музыка -->
+                    <button class="landing-music-btn" id="musicToggleBtn" onclick="toggleMusicPlayer()" title="Музыка">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                        </svg>
+                    </button>
+
+                    <a href="https://t.me/keysum" target="_blank" class="landing-telegram-btn" title="Telegram">
+                        <!-- Официальный SVG иконки Telegram -->
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.14-.26.26-.534.26l.213-3.053 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.654-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+                        </svg>
+                    </a>
+                </div>
+                
+                <!-- Секция плеера -->
+                <div class="music-player-view" id="musicPlayerView">
+                    <div class="youtube-embed-wrapper">
+                        <div id="youtubePlayerContainer"></div>
+                    </div>
+                    <div class="music-controls-bar">
+                        <!-- Обе кнопки переключают на рандомный трек из любого плейлиста -->
+                        <button class="music-ctrl-btn" onclick="nextSong()">◀◀ </button>
+                        <button class="music-ctrl-btn" onclick="nextSong()">▶▶</button>
+                    </div>
+                    <!-- Эквалайзер увеличенной высоты -->
+                    <div class="equalizer-container">
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                    </div>
+                </div>
+
+                <!-- Контейнер для кнопок, которые сгенерируются из вашего текста -->
+                <div class="movies-list-container" id="moviesListContainer">
+                    <!-- Кнопки появятся здесь -->
+                </div>
+            </div>
         </div>
 
-        <!-- Оригинальный плеер (остается на месте под сайтом) -->
+        <!-- Слой с сайтом поверх плеера (занимает зону видео 67%) -->
+        <div class="site-overlay">
+            <iframe id="siteIframe" src="https://angliya-argentina-futbol.sbs" allowfullscreen></iframe>
+        </div>
+
+        <!-- Оригинальный плеер -->
         <video id="videoElement" class="video-player" autoplay playsinline controls></video>
 
-        <!-- Чат снизу (33% высоты) -->
+        <!-- Чат снизу -->
         <div class="chat-overlay" id="chatOverlay">
             <div class="chat-box">
-                
-<iframe src="https://www5.cbox.ws/box/?boxid=967420&boxtag=E05Ods" width="100%" height="300" allowtransparency="yes" allow="autoplay" frameborder="0" marginheight="0" marginwidth="0" scrolling="auto"></iframe>	
-
+                <iframe src="https://www5.cbox.ws/box/?boxid=967420&boxtag=E05Ods" width="100%" height="300" allowtransparency="yes" allow="autoplay" frameborder="0" marginheight="0" marginwidth="0" scrolling="auto"></iframe>	
             </div>
         </div>
     </div>
@@ -134,6 +574,293 @@
     </audio>
 
     <script>
+        // ==============================================================
+        // СПИСОК ПЛЕЙЛИСТОВ YOUTUBE (просто добавляйте ссылки с новой строки)
+        // ==============================================================
+        const rawPlaylistsText = `
+        https://youtube.com/playlist?list=PLKy3bbkdNbdHoqSEsOQHjYXtmNZ_Z1yEt&si=O0GngFGdm-3yv17X
+https://youtube.com/playlist?list=PLaiVk1DGd9TBM4iKvWBIinUFfeKB5Iacg&si=Y1B5_GBrqa-pN95O
+        `;
+        // ==============================================================
+
+        // ==============================================================
+        // ПРОСТОЙ СПИСОК ФИЛЬМОВ С ПОДДЕРЖКОЙ ПОДКНОПОК В СКОБКАХ
+        // ==============================================================
+        const rawMoviesText = `
+
+        https://argentina-angliya-match.sbs/film/507/
+        Терминатор
+        ("https://argentina-angliya-match.sbs/film/507/" "Терминатор")
+        ("https://argentina-angliya-match.sbs/film/444/" "Терминатор 2")
+("https://argentina-angliya-match.sbs/film/31" "Терминатор 3")
+
+        https://argentina-angliya-match.sbs/series/685246/
+        Рик и Морти
+
+https://argentina-angliya-match.sbs/film/508161/
+Ходячие мертвецы
+("https://argentina-angliya-match.sbs/film/508161/" "Ходячие мертвецы")
+("https://argentina-angliya-match.sbs/film/1245667/" "Ходячие мертвецы: Выжившие")
+
+https://argentina-angliya-match.sbs/series/89587/
+Скользящие
+
+https://argentina-angliya-match.sbs/series/8607693/
+Президент Кертис
+
+https://argentina-angliya-match.sbs/series/277537/
+Декстер
+("https://argentina-angliya-match.sbs/series/277537/" "Декстер")
+("https://argentina-angliya-match.sbs/film/4526286/" "Декстер: Новая кровь")
+("https://argentina-angliya-match.sbs/film/5626999/" "Декстер: Первородный грех")
+("https://argentina-angliya-match.sbs/film/6058297/" "Декстер: Воскрешение")
+
+
+
+
+
+
+        `;
+        // ==============================================================
+
+        let ytPlayer = null;
+        let playlistUrls = [];
+        let currentPlaylistIndex = 0;
+        let isMusicOpen = false;
+
+        // Загрузка YouTube Iframe API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        function onYouTubeIframeAPIReady() {
+            playlistUrls = rawPlaylistsText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            if (playlistUrls.length === 0) return;
+
+            currentPlaylistIndex = Math.floor(Math.random() * playlistUrls.length);
+            const selectedListUrl = playlistUrls[currentPlaylistIndex];
+            const listIdMatch = selectedListUrl.match(/[?&]list=([^#\&\?]+)/);
+            const listId = listIdMatch ? listIdMatch[1] : '';
+
+            ytPlayer = new YT.Player('youtubePlayerContainer', {
+                height: '100%',
+                width: '100%',
+                playerVars: {
+                    'listType': 'playlist',
+                    'list': listId,
+                    'autoplay': 1,
+                    'shuffle': 1,
+                    'controls': 1,
+                    'playsinline': 1
+                },
+                events: {
+                    'onReady': (event) => {
+                        event.target.setShuffle({ shuffle: true });
+                        event.target.playVideo();
+                    },
+                    'onStateChange': (event) => {
+                        if (event.data === YT.PlayerState.ENDED) {
+                            nextSong();
+                        }
+                    }
+                }
+            });
+        }
+
+        // Переключение на случайный трек из случайного плейлиста для обеих кнопок
+        function nextSong() {
+            if (!ytPlayer || playlistUrls.length === 0) return;
+            if (playlistUrls.length > 1) {
+                let nextIdx;
+                do {
+                    nextIdx = Math.floor(Math.random() * playlistUrls.length);
+                } while (nextIdx === currentPlaylistIndex);
+                currentPlaylistIndex = nextIdx;
+            } else {
+                currentPlaylistIndex = 0;
+            }
+            const selectedListUrl = playlistUrls[currentPlaylistIndex];
+            const listIdMatch = selectedListUrl.match(/[?&]list=([^#\&\?]+)/);
+            const listId = listIdMatch ? listIdMatch[1] : '';
+            if (listId) {
+                ytPlayer.loadPlaylist({
+                    list: listId,
+                    listType: 'playlist',
+                    index: Math.floor(Math.random() * 15),
+                    suggestedQuality: 'medium'
+                });
+                ytPlayer.setShuffle({ shuffle: true });
+                ytPlayer.playVideo();
+            }
+        }
+
+        // Интерактивная кнопка управления плеером
+        function toggleMusicPlayer() {
+            isMusicOpen = !isMusicOpen;
+            const musicBtn = document.getElementById('musicToggleBtn');
+            const musicView = document.getElementById('musicPlayerView');
+            const moviesList = document.getElementById('moviesListContainer');
+
+            if (isMusicOpen) {
+                musicBtn.classList.add('active');
+                musicView.classList.add('active');
+                moviesList.classList.add('hidden');
+                if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+                    ytPlayer.playVideo();
+                }
+            } else {
+                musicBtn.classList.remove('active');
+                musicView.classList.remove('active');
+                moviesList.classList.remove('hidden');
+                if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+                    ytPlayer.pauseVideo();
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const container = document.getElementById('moviesListContainer');
+            container.innerHTML = ""; 
+
+            const lines = rawMoviesText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+            
+            let movies = [];
+            let currentMovie = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+
+                if (line.startsWith('(') && line.endsWith(')')) {
+                    const inner = line.slice(1, -1).trim();
+                    const match = inner.match(/"([^"]+)"\s+"([^"]+)"/);
+                    if (match && currentMovie) {
+                        currentMovie.subButtons.push({
+                            url: match[1],
+                            title: match[2]
+                        });
+                    }
+                } else {
+                    if (i + 1 < lines.length && !lines[i+1].startsWith('(')) {
+                        if (currentMovie) {
+                            movies.push(currentMovie);
+                        }
+                        currentMovie = {
+                            url: lines[i],
+                            title: lines[i+1],
+                            subButtons: []
+                        };
+                        i++; 
+                    }
+                }
+            }
+            if (currentMovie) {
+                movies.push(currentMovie);
+            }
+
+            movies.sort(() => Math.random() - 0.5);
+
+            movies.forEach((movie) => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+
+                const btn = document.createElement('button');
+                btn.className = 'movie-btn';
+                btn.dataset.title = movie.title.toLowerCase();
+                
+                if (movie.subButtons.length > 0) {
+                    btn.innerHTML = `${movie.title} <span>Развернуть ▼</span>`;
+                    btn.onclick = () => {
+                        card.classList.toggle('open');
+                        const span = btn.querySelector('span');
+                        span.textContent = card.classList.contains('open') ? 'Свернуть ▲' : 'Развернуть ▼';
+                    };
+                } else {
+                    btn.innerHTML = `${movie.title} <span>Смотреть ▶</span>`;
+                    btn.onclick = () => openMovie(movie.url);
+                }
+                card.appendChild(btn);
+
+                if (movie.subButtons.length > 0) {
+                    const subContainer = document.createElement('div');
+                    subContainer.className = 'sub-buttons-container';
+
+                    movie.subButtons.forEach(sub => {
+                        const subBtn = document.createElement('button');
+                        subBtn.className = 'sub-movie-btn';
+                        subBtn.dataset.title = sub.title.toLowerCase();
+                        subBtn.innerHTML = `${sub.title} <span>Смотреть ▶</span>`;
+                        subBtn.onclick = () => openMovie(sub.url);
+                        subContainer.appendChild(subBtn);
+                    });
+
+                    card.appendChild(subContainer);
+                }
+
+                container.appendChild(card);
+            });
+        });
+
+        function filterMovies() {
+            const query = document.getElementById('movieSearchInput').value.toLowerCase().trim();
+            
+            if (isMusicOpen && query.length > 0) {
+                toggleMusicPlayer();
+            }
+
+            const allButtons = document.querySelectorAll('.movies-list-container button');
+
+            allButtons.forEach(btn => btn.classList.remove('highlighted'));
+
+            if (query.length < 3) return;
+
+            let firstMatch = null;
+
+            allButtons.forEach(btn => {
+                const title = btn.dataset.title || "";
+                if (title.includes(query)) {
+                    btn.classList.add('highlighted');
+                    
+                    if (btn.classList.contains('sub-movie-btn')) {
+                        const card = btn.closest('.movie-card');
+                        if (card) {
+                            card.classList.add('open');
+                            const mainBtnSpan = card.querySelector('.movie-btn span');
+                            if (mainBtnSpan) mainBtnSpan.textContent = 'Свернуть ▲';
+                        }
+                    }
+
+                    if (!firstMatch) {
+                        firstMatch = btn;
+                    }
+                }
+            });
+
+            if (firstMatch) {
+                firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function openMovie(movieUrl) {
+            document.getElementById('siteIframe').src = movieUrl;
+            hideAllOverlays();
+        }
+
+        function hideAllOverlays() {
+            const landing = document.getElementById('movieLanding');
+            if (landing) {
+                landing.style.opacity = '0';
+                landing.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    landing.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        function revealSite() {
+            hideAllOverlays();
+        }
+
         const videoSource = "https://.m3u8"; 
 
         const video = document.getElementById('videoElement');
@@ -151,13 +878,11 @@
             video.src = videoSource;
         }
 
-        // Надежный обход ограничений Instagram WebView через Visual Viewport API
-        const container = document.getElementById('streamContainer');
+        const containerElem = document.getElementById('streamContainer');
 
         function updateLayoutForKeyboard() {
             if (window.visualViewport) {
-                // Устанавливаем высоту контейнера точно по высоте видимой зоны экрана (с учетом открытой клавиатуры)
-                container.style.height = window.visualViewport.height + 'px';
+                containerElem.style.height = window.visualViewport.height + 'px';
                 window.scrollTo(0, 0);
             }
         }
@@ -167,7 +892,6 @@
             window.visualViewport.addEventListener('scroll', updateLayoutForKeyboard);
         }
 
-        // Защита от ухода телефона в спящий режим (Wake Lock + фоновый аудио-сигнал + пинг)
         let wakeLock = null;
         async function requestWakeLock() {
             if ('wakeLock' in navigator) {
@@ -191,7 +915,6 @@
             }
         });
 
-        // Запуск фонового аудио для предотвращения засыпания системы
         const keepAliveAudio = document.getElementById('keepAliveAudio');
         function startKeepAlive() {
             if (keepAliveAudio.paused) {
@@ -203,7 +926,6 @@
         window.addEventListener('touchstart', startKeepAlive, { once: true });
         setTimeout(startKeepAlive, 1000);
 
-        // Дополнительный интервал для поддержания активного состояния процессора и предотвращения сна
         setInterval(() => {
             startKeepAlive();
             if ('wakeLock' in navigator && wakeLock === null && document.visibilityState === 'visible') {
