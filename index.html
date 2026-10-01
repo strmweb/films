@@ -74,19 +74,19 @@
             border: none;
         }
 
-        /* --- ФРЕЙМ-ЛЕНТА (заходит немного под чат снизу) --- */
+        /* --- ФРЕЙМ-ЛЕНТА (заходит впритык к границе чата снизу) --- */
         .movie-landing-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 28%; /* Заходит чуть ниже границы 33%, перекрывая верх чата */
+            bottom: 33%; /* Изменено: теперь заходит до самой границы чата впритык */
             z-index: 8;
             background: rgba(11, 11, 11, 0.96);
             backdrop-filter: blur(12px);
             display: flex;
             flex-direction: column;
-            padding: 0; /* Убираем общие отступы, чтобы шапка прилегала к краям */
+            padding: 0; 
             overflow-y: auto;
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
@@ -107,21 +107,20 @@
         .brand-logo-text {
             font-size: 18px;
             font-weight: 850;
-            letter-spacing: 12px; /* Сильное разряжение для растягивания от края до края */
+            letter-spacing: 12px;
             color: #ffffff;
             text-transform: uppercase;
             text-shadow: 0 2px 12px rgba(168, 85, 247, 0.5);
             transition: opacity 0.2s ease;
             width: 100%;
             text-align: center;
-            padding-left: 12px; /* компенсация letter-spacing для идеального визуального центра */
+            padding-left: 12px;
         }
 
         .brand-header:hover .brand-logo-text {
             opacity: 0.8;
         }
 
-        /* Контейнер для внутреннего содержимого ленты (чтобы поля ввода и списки были с отступами) */
         .landing-content-inner {
             display: flex;
             flex-direction: column;
@@ -129,7 +128,6 @@
             flex-grow: 1;
         }
 
-        /* Верхняя панель управления в ленте (кнопка поиск + инпут + кнопка музыка + кнопка Telegram) */
         .landing-top-bar {
             display: flex;
             gap: 8px;
@@ -137,7 +135,6 @@
             flex-shrink: 0;
         }
 
-        /* Кнопка поиск внутри ленты */
         .landing-search-btn {
             background: linear-gradient(135deg, #7928ca 0%, #a855f7 100%);
             border: none;
@@ -160,7 +157,6 @@
             transform: scale(0.98);
         }
 
-        /* Кнопка Музыка */
         .landing-music-btn {
             background: rgba(26, 26, 26, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -198,7 +194,6 @@
             fill: #ffffff;
         }
 
-        /* Кнопка Telegram с логотипом */
         .landing-telegram-btn {
             background: rgba(26, 26, 26, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -230,7 +225,6 @@
             fill: #24a1de;
         }
 
-        /* Поле ввода для поиска по ключевым словам */
         .landing-input {
             flex-grow: 1;
             background: rgba(26, 26, 26, 0.9);
@@ -247,7 +241,6 @@
             border-color: #a855f7;
         }
 
-        /* --- СЕКЦИЯ МУЗЫКАЛЬНОГО ПЛЕЕРА --- */
         .music-player-view {
             display: none;
             flex-direction: column;
@@ -261,7 +254,6 @@
             display: flex;
         }
 
-        /* Размер плеера */
         .youtube-embed-wrapper {
             width: 100%;
             height: 210px;
@@ -307,7 +299,6 @@
             transform: scale(0.98);
         }
 
-        /* УВЕЛИЧЕННЫЙ ПО ВЫСОТЕ ЭКВАЛАЙЗЕР */
         .equalizer-container {
             display: flex;
             align-items: flex-end;
@@ -548,6 +539,14 @@
 
     <script>
         // ==============================================================
+        // ПРИНУДИТЕЛЬНЫЙ СБРОС СОСТОЯНИЯ ПРИ ПОВТОРНОМ ОТКРЫТИИ
+        // ==============================================================
+        if (performance.navigation.type === 2 || window.performance.getEntriesByType("navigation")[0]?.type === "back_forward") {
+            sessionStorage.clear();
+            window.location.replace(window.location.pathname);
+        }
+
+        // ==============================================================
         // СПИСОК ПЛЕЙЛИСТОВ YOUTUBE
         // ==============================================================
         const rawPlaylistsText = `
@@ -557,14 +556,14 @@
         // ==============================================================
 
         // ==============================================================
-        // СПИСОК ФИЛЬМОВ (ТЕПЕРЬ БЕЗ КАВЫЧЕК В СКОБКАХ)
+        // СПИСОК ФИЛЬМОВ
         // ==============================================================
         const rawMoviesText = `
         https://argentina-angliya-match.sbs/film/507/
         Терминатор
         (https://argentina-angliya-match.sbs/film/507/ Терминатор)
         (https://argentina-angliya-match.sbs/film/444/ Терминатор 2)
-        (https://argentina-angliya-match.sbs/film/31 Терминатор 3)
+        (https://argentina-angliya-match.sbs/film/319/ Терминатор 3)
 
         https://argentina-angliya-match.sbs/series/685246/
         Рик и Морти
@@ -683,6 +682,12 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            // Принудительно очищаем iframe при каждой загрузке/возврату
+            document.getElementById('siteIframe').src = "about:blank";
+            if (window.location.hash) {
+                history.replaceState(null, '', window.location.pathname);
+            }
+
             const container = document.getElementById('moviesListContainer');
             container.innerHTML = ""; 
 
@@ -696,7 +701,6 @@
 
                 if (line.startsWith('(') && line.endsWith(')')) {
                     const inner = line.slice(1, -1).trim();
-                    // Разделяем по первому пробелу: [0] — ссылка, всё остальное — название
                     const spaceIndex = inner.indexOf(' ');
                     if (spaceIndex !== -1 && currentMovie) {
                         currentMovie.subButtons.push({
