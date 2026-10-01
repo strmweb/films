@@ -313,7 +313,7 @@
             align-items: flex-end;
             justify-content: space-between;
             gap: 4px;
-            height: 80px; /* Увеличено с 40px до 80px */
+            height: 80px;
             width: 100%;
             padding: 8px 10px;
             background: rgba(18, 18, 18, 0.8);
@@ -347,17 +347,10 @@
         .eq-bar:nth-child(15) { animation-duration: 0.8s; }
 
         @keyframes equalize {
-            0% {
-                transform: scaleY(0.25);
-            }
-            50% {
-                transform: scaleY(1.0);
-            }
-            100% {
-                transform: scaleY(0.45);
-            }
+            0% { transform: scaleY(0.25); }
+            50% { transform: scaleY(1.0); }
+            100% { transform: scaleY(0.45); }
         }
-        /* ---------------------------------- */
 
         .movies-list-container {
             display: flex;
@@ -369,7 +362,6 @@
             display: none;
         }
 
-        /* Обертка для карточки фильма (может содержать подкнопки) */
         .movie-card {
             display: flex;
             flex-direction: column;
@@ -403,7 +395,6 @@
             font-size: 13px;
         }
 
-        /* Контейнер для подкнопок (скрыт по умолчанию) */
         .sub-buttons-container {
             display: none;
             flex-direction: column;
@@ -417,7 +408,6 @@
             display: flex;
         }
 
-        /* Стиль подкнопок */
         .sub-movie-btn {
             background: rgba(18, 18, 18, 0.9);
             border: 1px solid rgba(168, 85, 247, 0.3);
@@ -444,16 +434,13 @@
             font-size: 12px;
         }
 
-        /* Эффект подсветки найденной кнопки */
         .movie-btn.highlighted, .sub-movie-btn.highlighted {
             border-color: #a855f7 !important;
             background: rgba(168, 85, 247, 0.25) !important;
             box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
             transform: scale(1.02);
         }
-        /* --------------------------------------------------------- */
 
-        /* Панель чата снизу: занимает ровно 1/3 (33%) экрана */
         .chat-overlay {
             position: absolute;
             bottom: 0;
@@ -487,20 +474,16 @@
 
     <div class="stream-container" id="streamContainer">
         
-        <!-- ФРЕЙМ-ЛЕНТА НА ВЕСЬ ЭКРАН С ЗАХОДОМ ПОД ЧАТ -->
         <div class="movie-landing-overlay" id="movieLanding">
-            <!-- Растянутый по всей ширине экрана минималистичный логотип STRMWEB -->
             <a href="https://www.instagram.com/strmweb" target="_blank" class="brand-header">
                 <div class="brand-logo-text">STRMWEB</div>
             </a>
 
             <div class="landing-content-inner">
-                <!-- Верхняя панель: Поиск + Инпут + Кнопка Музыка + Кнопка Telegram -->
                 <div class="landing-top-bar">
-                    <button class="landing-search-btn" onclick="revealSite()">Поиск</button>
+                    <button class="landing-search-btn" onclick="openMovie('https://angliya-argentina-futbol.sbs')">Поиск</button>
                     <input type="text" id="movieSearchInput" class="landing-input" placeholder="Лента фильмов..." oninput="filterMovies()">
                     
-                    <!-- Интерактивная кнопка Музыка -->
                     <button class="landing-music-btn" id="musicToggleBtn" onclick="toggleMusicPlayer()" title="Музыка">
                         <svg viewBox="0 0 24 24">
                             <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
@@ -508,24 +491,20 @@
                     </button>
 
                     <a href="https://t.me/keysum" target="_blank" class="landing-telegram-btn" title="Telegram">
-                        <!-- Официальный SVG иконки Telegram -->
                         <svg viewBox="0 0 24 24">
                             <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.14-.26.26-.534.26l.213-3.053 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.654-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
                         </svg>
                     </a>
                 </div>
                 
-                <!-- Секция плеера -->
                 <div class="music-player-view" id="musicPlayerView">
                     <div class="youtube-embed-wrapper">
                         <div id="youtubePlayerContainer"></div>
                     </div>
                     <div class="music-controls-bar">
-                        <!-- Обе кнопки переключают на рандомный трек из любого плейлиста -->
                         <button class="music-ctrl-btn" onclick="nextSong()">◀◀ </button>
                         <button class="music-ctrl-btn" onclick="nextSong()">▶▶</button>
                     </div>
-                    <!-- Эквалайзер увеличенной высоты -->
                     <div class="equalizer-container">
                         <div class="eq-bar"></div>
                         <div class="eq-bar"></div>
@@ -545,22 +524,17 @@
                     </div>
                 </div>
 
-                <!-- Контейнер для кнопок, которые сгенерируются из вашего текста -->
                 <div class="movies-list-container" id="moviesListContainer">
-                    <!-- Кнопки появятся здесь -->
                 </div>
             </div>
         </div>
 
-        <!-- Слой с сайтом поверх плеера (занимает зону видео 67%) -->
         <div class="site-overlay">
-            <iframe id="siteIframe" src="https://angliya-argentina-futbol.sbs" allowfullscreen></iframe>
+            <iframe id="siteIframe" src="about:blank" allowfullscreen></iframe>
         </div>
 
-        <!-- Оригинальный плеер -->
         <video id="videoElement" class="video-player" autoplay playsinline controls></video>
 
-        <!-- Чат снизу -->
         <div class="chat-overlay" id="chatOverlay">
             <div class="chat-box">
                 <iframe src="https://www5.cbox.ws/box/?boxid=967420&boxtag=E05Ods" width="100%" height="300" allowtransparency="yes" allow="autoplay" frameborder="0" marginheight="0" marginwidth="0" scrolling="auto"></iframe>	
@@ -568,58 +542,50 @@
         </div>
     </div>
 
-    <!-- Невидимый элемент для предотвращения засыпания телефона -->
     <audio id="keepAliveAudio" loop style="display:none;">
         <source src="data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YRAAAAAAAA==" type="audio/wav">
     </audio>
 
     <script>
         // ==============================================================
-        // СПИСОК ПЛЕЙЛИСТОВ YOUTUBE (просто добавляйте ссылки с новой строки)
+        // СПИСОК ПЛЕЙЛИСТОВ YOUTUBE
         // ==============================================================
         const rawPlaylistsText = `
         https://youtube.com/playlist?list=PLKy3bbkdNbdHoqSEsOQHjYXtmNZ_Z1yEt&si=O0GngFGdm-3yv17X
-https://youtube.com/playlist?list=PLaiVk1DGd9TBM4iKvWBIinUFfeKB5Iacg&si=Y1B5_GBrqa-pN95O
+        https://youtube.com/playlist?list=PLaiVk1DGd9TBM4iKvWBIinUFfeKB5Iacg&si=Y1B5_GBrqa-pN95O
         `;
         // ==============================================================
 
         // ==============================================================
-        // ПРОСТОЙ СПИСОК ФИЛЬМОВ С ПОДДЕРЖКОЙ ПОДКНОПОК В СКОБКАХ
+        // СПИСОК ФИЛЬМОВ (ТЕПЕРЬ БЕЗ КАВЫЧЕК В СКОБКАХ)
         // ==============================================================
         const rawMoviesText = `
-
         https://argentina-angliya-match.sbs/film/507/
         Терминатор
-        ("https://argentina-angliya-match.sbs/film/507/" "Терминатор")
-        ("https://argentina-angliya-match.sbs/film/444/" "Терминатор 2")
-("https://argentina-angliya-match.sbs/film/31" "Терминатор 3")
+        (https://argentina-angliya-match.sbs/film/507/ Терминатор)
+        (https://argentina-angliya-match.sbs/film/444/ Терминатор 2)
+        (https://argentina-angliya-match.sbs/film/31 Терминатор 3)
 
         https://argentina-angliya-match.sbs/series/685246/
         Рик и Морти
 
-https://argentina-angliya-match.sbs/film/508161/
-Ходячие мертвецы
-("https://argentina-angliya-match.sbs/film/508161/" "Ходячие мертвецы")
-("https://argentina-angliya-match.sbs/film/1245667/" "Ходячие мертвецы: Выжившие")
+        https://argentina-angliya-match.sbs/film/508161/
+        Ходячие мертвецы
+        (https://argentina-angliya-match.sbs/film/508161/ Ходячие мертвецы)
+        (https://argentina-angliya-match.sbs/film/1245667/ Ходячие мертвецы: Выжившие)
 
-https://argentina-angliya-match.sbs/series/89587/
-Скользящие
+        https://argentina-angliya-match.sbs/series/89587/
+        Скользящие
 
-https://argentina-angliya-match.sbs/series/8607693/
-Президент Кертис
+        https://argentina-angliya-match.sbs/series/8607693/
+        Президент Кертис
 
-https://argentina-angliya-match.sbs/series/277537/
-Декстер
-("https://argentina-angliya-match.sbs/series/277537/" "Декстер")
-("https://argentina-angliya-match.sbs/film/4526286/" "Декстер: Новая кровь")
-("https://argentina-angliya-match.sbs/film/5626999/" "Декстер: Первородный грех")
-("https://argentina-angliya-match.sbs/film/6058297/" "Декстер: Воскрешение")
-
-
-
-
-
-
+        https://argentina-angliya-match.sbs/series/277537/
+        Декстер
+        (https://argentina-angliya-match.sbs/series/277537/ Декстер)
+        (https://argentina-angliya-match.sbs/film/4526286/ Декстер: Новая кровь)
+        (https://argentina-angliya-match.sbs/film/5626999/ Декстер: Первородный грех)
+        (https://argentina-angliya-match.sbs/film/6058297/ Декстер: Воскрешение)
         `;
         // ==============================================================
 
@@ -628,7 +594,6 @@ https://argentina-angliya-match.sbs/series/277537/
         let currentPlaylistIndex = 0;
         let isMusicOpen = false;
 
-        // Загрузка YouTube Iframe API
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -668,7 +633,6 @@ https://argentina-angliya-match.sbs/series/277537/
             });
         }
 
-        // Переключение на случайный трек из случайного плейлиста для обеих кнопок
         function nextSong() {
             if (!ytPlayer || playlistUrls.length === 0) return;
             if (playlistUrls.length > 1) {
@@ -695,7 +659,6 @@ https://argentina-angliya-match.sbs/series/277537/
             }
         }
 
-        // Интерактивная кнопка управления плеером
         function toggleMusicPlayer() {
             isMusicOpen = !isMusicOpen;
             const musicBtn = document.getElementById('musicToggleBtn');
@@ -733,11 +696,12 @@ https://argentina-angliya-match.sbs/series/277537/
 
                 if (line.startsWith('(') && line.endsWith(')')) {
                     const inner = line.slice(1, -1).trim();
-                    const match = inner.match(/"([^"]+)"\s+"([^"]+)"/);
-                    if (match && currentMovie) {
+                    // Разделяем по первому пробелу: [0] — ссылка, всё остальное — название
+                    const spaceIndex = inner.indexOf(' ');
+                    if (spaceIndex !== -1 && currentMovie) {
                         currentMovie.subButtons.push({
-                            url: match[1],
-                            title: match[2]
+                            url: inner.slice(0, spaceIndex).trim(),
+                            title: inner.slice(spaceIndex + 1).trim()
                         });
                     }
                 } else {
@@ -842,8 +806,20 @@ https://argentina-angliya-match.sbs/series/277537/
         }
 
         function openMovie(movieUrl) {
+            history.pushState({ view: 'player' }, '', '#player');
             document.getElementById('siteIframe').src = movieUrl;
             hideAllOverlays();
+        }
+
+        function showAllOverlays() {
+            const landing = document.getElementById('movieLanding');
+            if (landing) {
+                landing.style.display = 'flex';
+                setTimeout(() => {
+                    landing.style.opacity = '1';
+                    landing.style.transform = 'scale(1)';
+                }, 10);
+            }
         }
 
         function hideAllOverlays() {
@@ -857,9 +833,10 @@ https://argentina-angliya-match.sbs/series/277537/
             }
         }
 
-        function revealSite() {
-            hideAllOverlays();
-        }
+        window.addEventListener('popstate', (event) => {
+            showAllOverlays();
+            document.getElementById('siteIframe').src = "about:blank";
+        });
 
         const videoSource = "https://.m3u8"; 
 
