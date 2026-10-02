@@ -102,7 +102,61 @@
             display: flex;
             flex-direction: column;
             padding: 0; 
+            overflow: hidden;
+        }
+
+        /* Обертка для контента ленты */
+        .landing-scroll-wrapper {
+            flex-grow: 1;
             overflow-y: auto;
+            scroll-behavior: smooth;
+            padding: 0 12px 16px 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Кнопки прокрутки в виде узкой полочки */
+        .static-sidebar-scroll {
+            position: absolute;
+            right: 0px;
+            top: 130px;
+            bottom: 12px;
+            width: 8px;
+            z-index: 25;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .scroll-static-btn {
+            pointer-events: auto;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            color: #ffffff;
+            width: 8px;
+            height: 26px;
+            border-radius: 2px 0 0 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: -1px 2px 4px rgba(0, 0, 0, 0.5);
+            transition: background 0.2s, border-color 0.2s;
+            padding: 0;
+        }
+
+        .scroll-static-btn svg {
+            width: 6px;
+            height: 6px;
+            fill: #a855f7;
+        }
+
+        .scroll-static-btn:hover {
+            background: rgba(168, 85, 247, 0.3);
+            border-color: #a855f7;
         }
 
         .brand-header {
@@ -129,30 +183,22 @@
             padding-left: 12px;
         }
 
-        .landing-content-inner {
-            display: flex;
-            flex-direction: column;
-            padding: 0 16px 16px 16px;
-            flex-grow: 1;
-        }
-
         .landing-top-bar {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             margin-bottom: 16px;
             flex-shrink: 0;
             align-items: center;
-            flex-wrap: wrap;
         }
 
         .landing-search-btn {
             background: linear-gradient(135deg, #7928ca 0%, #a855f7 100%);
             border: none;
             color: #ffffff;
-            padding: 0 12px;
+            padding: 0 16px;
             height: 46px;
             border-radius: 14px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             text-align: center;
@@ -196,17 +242,18 @@
         }
 
         .landing-input {
-            width: 50px;
+            width: 100%;
             min-width: 0;
             flex-grow: 1;
             background: rgba(26, 26, 26, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #ffffff;
-            padding: 0 10px;
+            padding: 0 14px;
             height: 46px;
             border-radius: 14px;
             font-size: 14px;
             outline: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .music-player-view {
@@ -505,11 +552,21 @@
                 <div class="brand-logo-text">STRMWEB</div>
             </a>
 
-            <div class="landing-content-inner">
+            <!-- Узкие кнопки прокрутки в виде полочки с треугольниками -->
+            <div class="static-sidebar-scroll">
+                <button class="scroll-static-btn" onclick="scrollContent(-300)" title="Вверх">
+                    <svg viewBox="0 0 24 24"><path d="M12 8l-6 8h12z"/></svg>
+                </button>
+                <button class="scroll-static-btn" onclick="scrollContent(300)" title="Вниз">
+                    <svg viewBox="0 0 24 24"><path d="M12 16l-6-8h12z"/></svg>
+                </button>
+            </div>
+
+            <div class="landing-scroll-wrapper" id="landingScrollWrapper">
                 <div class="landing-top-bar">
                     <button class="landing-search-btn" onclick="openMovie('https://angliya-argentina-futbol.sbs')">Поиск</button>
                     <input type="text" id="movieSearchInput" class="landing-input" placeholder="Лента..." oninput="filterMovies()">
-                    
+
                     <button class="landing-music-btn" id="musicToggleBtn" onclick="toggleMusicPlayer()" title="Музыка">
                         <svg viewBox="0 0 24 24">
                             <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
@@ -594,6 +651,29 @@
                 deferredPrompt = null;
             } else {
                 alert('Чтобы установить ярлык strmweb на рабочий стол, откройте меню браузера и выберите «Установить».');
+            }
+        }
+
+        function scrollContent(amount) {
+            startKeepAlive();
+            const siteIframe = document.getElementById('siteIframe');
+            const radioIframe = document.getElementById('radioIframe');
+            const landingWrapper = document.getElementById('landingScrollWrapper');
+
+            if (siteIframe && siteIframe.classList.contains('active')) {
+                try {
+                    siteIframe.contentWindow.scrollBy({ top: amount, behavior: 'smooth' });
+                    return;
+                } catch(e) {}
+            }
+            if (radioIframe && radioIframe.classList.contains('active')) {
+                try {
+                    radioIframe.contentWindow.scrollBy({ top: amount, behavior: 'smooth' });
+                    return;
+                } catch(e) {}
+            }
+            if (landingWrapper) {
+                landingWrapper.scrollBy({ top: amount, behavior: 'smooth' });
             }
         }
 
@@ -830,9 +910,9 @@
             allParsedMovies = movies;
             renderMoreMovies(pageSize);
 
-            const landingOverlay = document.getElementById('movieLanding');
-            landingOverlay.addEventListener('scroll', () => {
-                if (landingOverlay.scrollTop + landingOverlay.clientHeight >= landingOverlay.scrollHeight - 200) {
+            const landingWrapper = document.getElementById('landingScrollWrapper');
+            landingWrapper.addEventListener('scroll', () => {
+                if (landingWrapper.scrollTop + landingWrapper.clientHeight >= landingWrapper.scrollHeight - 200) {
                     renderMoreMovies(pageSize);
                 }
             });
@@ -989,6 +1069,8 @@
         window.addEventListener('popstate', (event) => {
             showAllOverlays();
         });
+
+        window.addEventListener('hideAllOverlays', hideAllOverlays);
 
         function hideAllOverlays() {
             const landing = document.getElementById('movieLanding');
