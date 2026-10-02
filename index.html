@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="manifest.json">
     <title></title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
@@ -719,7 +720,6 @@
                         event.target.playVideo();
                     },
                     'onStateChange': (event) => {
-                        // Если плеер ставится на паузу при уходе вкладки в фон — принудительно возвращаем воспроизведение
                         if (event.data === YT.PlayerState.PAUSED && document.hidden) {
                             setTimeout(() => {
                                 if (document.hidden && ytPlayer && typeof ytPlayer.playVideo === 'function') {
