@@ -573,7 +573,6 @@
         </div>
     </div>
 
-    <!-- Возвращенный аудиоэлемент для предотвращения ухода телефона в сон -->
     <audio id="keepAliveAudio" loop preload="auto" style="display:none;">
         <source src="data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YRAAAAAAAA==" type="audio/wav">
     </audio>
@@ -588,12 +587,13 @@
         });
 
         async function installPWA() {
+            startKeepAlive();
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 deferredPrompt = null;
             } else {
-                alert('Ярлык уже добавлен на рабочий стол.');
+                alert('Чтобы установить приложение, откройте меню браузера и выберите «На экран «Домой»» или «Установить».');
             }
         }
 
@@ -692,7 +692,7 @@
                         event.target.setShuffle({ shuffle: true });
                     },
                     'onStateChange': (event) => {
-                        startKeepAlive(); // Гарантируем работу анти-сна при смене состояния плеера
+                        startKeepAlive();
                         if (event.data === YT.PlayerState.PAUSED && document.hidden) {
                             setTimeout(() => {
                                 if (document.hidden && ytPlayer && typeof ytPlayer.playVideo === 'function') {
@@ -1009,7 +1009,6 @@
         }
         requestWakeLock();
 
-        // Улучшенная функция для запуска беззвучного аудио-потока анти-сна
         const keepAliveAudio = document.getElementById('keepAliveAudio');
         function startKeepAlive() {
             if (keepAliveAudio) {
@@ -1017,7 +1016,6 @@
             }
         }
 
-        // Авто-перезапуск при возвращении на вкладку или кликах
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 startKeepAlive();
