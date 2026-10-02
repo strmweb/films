@@ -600,7 +600,7 @@
                 <a href="https://strmweb.github.io/room/" target="_blank" class="chat-room-btn" title="Room">🔗</a>
                 
                 <!-- Кнопка установки (теперь всегда видна прямо под кнопкой ссылки) -->
-                <button class="chat-install-btn" id="installAppBtn" onclick="installPWA()" title="Установить приложение">
+                <button class="chat-install-btn" id="installAppBtn" onclick="installPWA()" title="Добавить ярлык strmweb на рабочий стол для быстрого доступа.">
                     <svg viewBox="0 0 24 24">
                         <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                     </svg>
@@ -628,11 +628,11 @@
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
-                    console.log('Приложение установлено');
+                    console.log('strmweb добавлен на рабочий стол.');
                 }
                 deferredPrompt = null;
             } else {
-                alert('Установка доступна через меню браузера ("Добавить на главный экран" или "Установить приложение"), либо приложение уже установлено.');
+                alert('Ярлык strmweb уже добавлен на рабочий стол для быстрого доступа.');
             }
         }
 
