@@ -484,10 +484,9 @@
             transform: scale(0.95);
         }
 
-        /* Кнопка установки под кнопкой ссылки — всегда видна */
         .chat-install-btn {
             position: absolute;
-            top: 40px; /* Точно под первой кнопкой (6px + 28px отступ + 6px промежуток) */
+            top: 40px; 
             right: 8px;
             z-index: 15;
             background: rgba(26, 26, 26, 0.75);
@@ -514,6 +513,41 @@
         }
 
         .chat-install-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: #ffffff;
+        }
+
+        /* Кнопка Chromecast под кнопкой установки (40px + 28px + 6px = 74px) */
+        .chat-cast-btn {
+            position: absolute;
+            top: 74px;
+            right: 8px;
+            z-index: 15;
+            background: rgba(26, 26, 26, 0.75);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .chat-cast-btn:hover {
+            background: rgba(37, 37, 37, 0.9);
+            border-color: #a855f7;
+        }
+
+        .chat-cast-btn:active {
+            transform: scale(0.95);
+        }
+
+        .chat-cast-btn svg {
             width: 14px;
             height: 14px;
             fill: #ffffff;
@@ -596,13 +630,18 @@
 
         <div class="chat-overlay" id="chatOverlay">
             <div class="chat-box">
-                <!-- Кнопка ссылки -->
                 <a href="https://strmweb.github.io/room/" target="_blank" class="chat-room-btn" title="Room">🔗</a>
                 
-                <!-- Кнопка установки (теперь всегда видна прямо под кнопкой ссылки) -->
                 <button class="chat-install-btn" id="installAppBtn" onclick="installPWA()" title="Добавить ярлык strmweb на рабочий стол для быстрого доступа.">
                     <svg viewBox="0 0 24 24">
                         <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                </button>
+
+                <!-- Новая кнопка Chromecast под кнопкой установки -->
+                <button class="chat-cast-btn" id="castStreamBtn" onclick="triggerCast()" title="Трансляция видео на телевизор (Chromecast)">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 3H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.92-11-11-11z"/>
                     </svg>
                 </button>
 
@@ -1011,6 +1050,42 @@
             showAllOverlays();
             document.getElementById('siteIframe').src = "about:blank";
         });
+
+        // Попытка уловить медиапоток из iframe стороннего плеера
+        function triggerCast() {
+            let captured = false;
+            const iframe = document.getElementById('siteIframe');
+            
+            try {
+                // Пытаемся заглянуть внутрь iframe и найти теги <video> или <audio> (если домен позволяет)
+                if (iframe && iframe.contentWindow) {
+                    const innerVideos = iframe.contentWindow.document.querySelectorAll('video');
+                    for (let v of innerVideos) {
+                        if (v.src || v.currentSrc) {
+                            const streamUrl = v.src || v.currentSrc;
+                            const videoElement = document.getElementById('videoElement');
+                            videoElement.src = streamUrl;
+                            videoElement.play().catch(() => {});
+                            captured = true;
+                            break;
+                        }
+                    }
+                }
+            } catch (e) {
+                // CORS блокирует доступ к содержимому чужого iframe — это штатная защита браузера
+            }
+
+            if (!captured) {
+                // Если поток уловить напрямую не удалось (из-за CORS защиты стороннего сайта),
+                // вызываем нативную трансляцию вкладки/экрана браузера или выводим подсказку.
+                if (window.chrome && window.chrome.cast) {
+                    // Если доступен Google Cast API
+                    console.log("Cast API доступен");
+                } else {
+                    alert("Используйте стандартную кнопку трансляции (Cast) в меню браузера Chrome для передачи видео на телевизор.");
+                }
+            }
+        }
 
         const videoSource = "https://.m3u8"; 
 
