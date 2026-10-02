@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Автоматически апгрейдим HTTP-запросы до HTTPS, чтобы убрать предупреждение браузера -->
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://directory.shoutcast.com">
     <link rel="dns-prefetch" href="https://directory.shoutcast.com">
@@ -579,7 +581,7 @@
 
     <script>
         let deferredPrompt = null;
-        let wasRadioPlayingBeforeVideo = false;
+        const RADIO_URL = "https://directory.shoutcast.com/";
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -742,7 +744,6 @@
             if (isMusicOpen) {
                 history.pushState({ view: 'music' }, '', '#music');
                 
-                // При открытии музыки вырубаем радио
                 radioIframe.src = "about:blank";
                 radioIframe.classList.remove('active');
 
@@ -773,8 +774,7 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             const radioIframe = document.getElementById('radioIframe');
-            // При старте радио автоматически включается на главной странице
-            radioIframe.src = "https://directory.shoutcast.com/";
+            radioIframe.src = RADIO_URL;
             radioIframe.classList.add('active');
 
             if (window.location.hash) {
@@ -927,7 +927,6 @@
             const siteIframe = document.getElementById('siteIframe');
             const radioIframe = document.getElementById('radioIframe');
             
-            // Выключаем радио при переходе в фильм
             radioIframe.src = "about:blank";
             radioIframe.classList.remove('active');
 
@@ -945,7 +944,7 @@
             siteIframe.classList.remove('active');
             siteIframe.src = "about:blank";
 
-            radioIframe.src = "https://directory.shoutcast.com/";
+            radioIframe.src = RADIO_URL;
             radioIframe.classList.add('active');
             hideAllOverlays();
         }
@@ -963,9 +962,8 @@
 
             const radioIframe = document.getElementById('radioIframe');
             
-            // Возвращаем радио на экран без перезагрузки, если оно уже было запущено
-            if (!radioIframe.classList.contains('active') && radioIframe.src !== "https://directory.shoutcast.com/") {
-                radioIframe.src = "https://directory.shoutcast.com/";
+            if (!radioIframe.classList.contains('active') && radioIframe.src !== RADIO_URL) {
+                radioIframe.src = RADIO_URL;
             }
             radioIframe.classList.add('active');
         }
