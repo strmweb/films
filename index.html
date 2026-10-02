@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://directory.shoutcast.com">
+    <link rel="dns-prefetch" href="https://directory.shoutcast.com">
     <title></title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
@@ -63,12 +65,30 @@
             height: 67%;
             z-index: 5;
             background: #0b0b0b;
+            overflow: hidden;
+            display: flex;
+            justify-content: stretch;
+            align-items: stretch;
         }
 
         .site-overlay iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             border: none;
+            z-index: 1;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        #siteIframe.active, #radioIframe.active {
+            z-index: 10;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
         }
 
         .movie-landing-overlay {
@@ -79,12 +99,10 @@
             bottom: 33%; 
             z-index: 8;
             background: rgba(11, 11, 11, 0.96);
-            backdrop-filter: blur(12px);
             display: flex;
             flex-direction: column;
             padding: 0; 
             overflow-y: auto;
-            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         .brand-header {
@@ -106,14 +124,9 @@
             color: #ffffff;
             text-transform: uppercase;
             text-shadow: 0 2px 12px rgba(168, 85, 247, 0.5);
-            transition: opacity 0.2s ease;
             width: 100%;
             text-align: center;
             padding-left: 12px;
-        }
-
-        .brand-header:hover .brand-logo-text {
-            opacity: 0.8;
         }
 
         .landing-content-inner {
@@ -144,15 +157,10 @@
             cursor: pointer;
             text-align: center;
             box-shadow: 0 4px 15px rgba(121, 40, 202, 0.4);
-            transition: transform 0.2s ease, opacity 0.2s ease;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .landing-search-btn:active {
-            transform: scale(0.98);
         }
 
         .landing-random-btn, .landing-music-btn, .landing-telegram-btn {
@@ -168,17 +176,7 @@
             justify-content: center;
             flex-shrink: 0;
             font-size: 18px;
-            transition: all 0.2s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .landing-random-btn:hover, .landing-music-btn:hover, .landing-telegram-btn:hover {
-            background: rgba(37, 37, 37, 0.95);
-            border-color: #a855f7;
-        }
-
-        .landing-random-btn:active, .landing-music-btn:active, .landing-telegram-btn:active {
-            transform: scale(0.98);
         }
 
         .landing-music-btn.active {
@@ -191,10 +189,6 @@
             width: 20px;
             height: 20px;
             fill: #ffffff;
-        }
-
-        .landing-telegram-btn:hover {
-            border-color: #24a1de;
         }
 
         .landing-telegram-btn svg {
@@ -213,11 +207,6 @@
             border-radius: 14px;
             font-size: 14px;
             outline: none;
-            transition: border-color 0.2s ease;
-        }
-
-        .landing-input:focus {
-            border-color: #a855f7;
         }
 
         .music-player-view {
@@ -265,17 +254,7 @@
             font-weight: bold;
             cursor: pointer;
             text-align: center;
-            transition: all 0.2s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .music-ctrl-btn:hover {
-            background: rgba(37, 37, 37, 0.95);
-            border-color: #a855f7;
-        }
-
-        .music-ctrl-btn:active {
-            transform: scale(0.98);
         }
 
         .equalizer-container {
@@ -351,13 +330,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.25s ease;
             width: 100%;
-        }
-
-        .movie-btn:hover {
-            background: rgba(37, 37, 37, 0.95);
-            border-color: #7928ca;
         }
 
         .movie-btn-content {
@@ -409,13 +382,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        .sub-movie-btn:hover {
-            background: rgba(37, 37, 37, 0.95);
-            border-color: #a855f7;
-            color: #ffffff;
         }
 
         .sub-movie-btn span {
@@ -471,23 +437,12 @@
             align-items: center;
             justify-content: center;
             font-size: 13px;
-            transition: all 0.2s ease;
             text-decoration: none;
         }
 
-        .chat-room-btn:hover {
-            background: rgba(37, 37, 37, 0.9);
-            border-color: #a855f7;
-        }
-
-        .chat-room-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Кнопка установки под кнопкой ссылки — всегда видна */
         .chat-install-btn {
             position: absolute;
-            top: 40px; /* Точно под первой кнопкой (6px + 28px отступ + 6px промежуток) */
+            top: 40px; 
             right: 8px;
             z-index: 15;
             background: rgba(26, 26, 26, 0.75);
@@ -501,21 +456,35 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .chat-install-btn:hover {
-            background: rgba(37, 37, 37, 0.9);
-            border-color: #a855f7;
-        }
-
-        .chat-install-btn:active {
-            transform: scale(0.95);
         }
 
         .chat-install-btn svg {
             width: 14px;
             height: 14px;
+            fill: #ffffff;
+        }
+
+        .chat-radio-btn {
+            position: absolute;
+            top: 74px; 
+            right: 8px;
+            z-index: 15;
+            background: rgba(26, 26, 26, 0.75);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-radio-btn svg {
+            width: 15px;
+            height: 15px;
             fill: #ffffff;
         }
 
@@ -565,21 +534,9 @@
                         <button class="music-ctrl-btn" onclick="nextSong()">▶▶</button>
                     </div>
                     <div class="equalizer-container">
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                        <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                        <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
                     </div>
                 </div>
 
@@ -589,24 +546,29 @@
         </div>
 
         <div class="site-overlay">
-            <iframe id="siteIframe" src="about:blank" allowfullscreen></iframe>
+            <iframe id="siteIframe" src="about:blank" allowfullscreen loading="eager"></iframe>
+            <iframe id="radioIframe" src="about:blank" allowfullscreen allow="autoplay" loading="eager"></iframe>
         </div>
 
         <video id="videoElement" class="video-player" autoplay playsinline controls></video>
 
         <div class="chat-overlay" id="chatOverlay">
             <div class="chat-box">
-                <!-- Кнопка ссылки -->
                 <a href="https://strmweb.github.io/room/" target="_blank" class="chat-room-btn" title="Room">🔗</a>
                 
-                <!-- Кнопка установки (теперь всегда видна прямо под кнопкой ссылки) -->
-                <button class="chat-install-btn" id="installAppBtn" onclick="installPWA()" title="Добавить ярлык strmweb на рабочий стол для быстрого доступа.">
+                <button class="chat-install-btn" id="installAppBtn" onclick="installPWA()" title="Установить PWA">
                     <svg viewBox="0 0 24 24">
                         <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                     </svg>
                 </button>
 
-                <iframe src="https://www5.cbox.ws/box/?boxid=967420&boxtag=E05Ods" width="100%" height="300" allowtransparency="yes" allow="autoplay" frameborder="0" marginheight="0" marginwidth="0" scrolling="auto"></iframe>	
+                <button class="chat-radio-btn" id="openRadioBtn" onclick="openRadio()" title="Радио SHOUTcast">
+                    <svg viewBox="0 0 36 36">
+                        <path fill="#ffffff" d="M32 6H4a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h28a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2zM4 10h28v2H4zm0 18V14h28v14zm14-11a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm-8 1a1 1 0 1 0 1 1 1 1 0 0 0-1-1zm0 4a1 1 0 1 0 1 1 1 1 0 0 0-1-1zm18-5h-4v2h4zm0 4h-4v2h4z"/>
+                    </svg>
+                </button>
+
+                <iframe src="https://www5.cbox.ws/box/?boxid=967420&boxtag=E05Ods" width="100%" height="300" allowtransparency="yes" allow="autoplay" frameborder="0" marginheight="0" marginwidth="0" scrolling="auto" loading="eager"></iframe>	
             </div>
         </div>
     </div>
@@ -617,6 +579,7 @@
 
     <script>
         let deferredPrompt = null;
+        let wasRadioPlayingBeforeVideo = false;
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -627,22 +590,10 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('strmweb добавлен на рабочий стол.');
-                }
                 deferredPrompt = null;
             } else {
-                alert('Ярлык strmweb уже добавлен на рабочий стол для быстрого доступа.');
+                alert('Ярлык уже добавлен на рабочий стол.');
             }
-        }
-
-        window.addEventListener('appinstalled', () => {
-            deferredPrompt = null;
-        });
-
-        if (performance.navigation.type === 2 || window.performance.getEntriesByType("navigation")[0]?.type === "back_forward") {
-            sessionStorage.clear();
-            window.location.replace(window.location.pathname);
         }
 
         const rawPlaylistsText = `
@@ -738,7 +689,6 @@
                 events: {
                     'onReady': (event) => {
                         event.target.setShuffle({ shuffle: true });
-                        event.target.playVideo();
                     },
                     'onStateChange': (event) => {
                         if (event.data === YT.PlayerState.PAUSED && document.hidden) {
@@ -787,8 +737,15 @@
             const musicBtn = document.getElementById('musicToggleBtn');
             const musicView = document.getElementById('musicPlayerView');
             const moviesList = document.getElementById('moviesListContainer');
+            const radioIframe = document.getElementById('radioIframe');
 
             if (isMusicOpen) {
+                history.pushState({ view: 'music' }, '', '#music');
+                
+                // При открытии музыки вырубаем радио
+                radioIframe.src = "about:blank";
+                radioIframe.classList.remove('active');
+
                 musicBtn.classList.add('active');
                 musicView.classList.add('active');
                 moviesList.classList.add('hidden');
@@ -796,29 +753,40 @@
                     ytPlayer.playVideo();
                 }
             } else {
-                musicBtn.classList.remove('active');
-                musicView.classList.remove('active');
-                moviesList.classList.remove('hidden');
-                if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
-                    ytPlayer.pauseVideo();
-                }
+                closeMusicPlayerState();
+            }
+        }
+
+        function closeMusicPlayerState() {
+            isMusicOpen = false;
+            const musicBtn = document.getElementById('musicToggleBtn');
+            const musicView = document.getElementById('musicPlayerView');
+            const moviesList = document.getElementById('moviesListContainer');
+
+            musicBtn.classList.remove('active');
+            musicView.classList.remove('active');
+            moviesList.classList.remove('hidden');
+            if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+                ytPlayer.pauseVideo();
             }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById('siteIframe').src = "about:blank";
+            const radioIframe = document.getElementById('radioIframe');
+            // При старте радио автоматически включается на главной странице
+            radioIframe.src = "https://directory.shoutcast.com/";
+            radioIframe.classList.add('active');
+
             if (window.location.hash) {
                 history.replaceState(null, '', window.location.pathname);
             }
 
             const lines = rawMoviesText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-            
             let movies = [];
             let currentMovie = null;
 
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
-
                 if (line.startsWith('(') && line.endsWith(')')) {
                     const inner = line.slice(1, -1).trim();
                     const spaceIndex = inner.indexOf(' ');
@@ -830,10 +798,7 @@
                     }
                 } else {
                     if (i + 1 < lines.length && !lines[i+1].startsWith('(')) {
-                        if (currentMovie) {
-                            movies.push(currentMovie);
-                        }
-                        
+                        if (currentMovie) movies.push(currentMovie);
                         const titleLine = lines[i+1];
                         let title = titleLine;
                         let poster = "";
@@ -842,24 +807,15 @@
                             title = titleLine.slice(0, firstSpace).trim();
                             poster = titleLine.slice(firstSpace).trim();
                         }
-
-                        currentMovie = {
-                            url: lines[i],
-                            title: title,
-                            poster: poster,
-                            subButtons: []
-                        };
+                        currentMovie = { url: lines[i], title: title, poster: poster, subButtons: [] };
                         i++; 
                     }
                 }
             }
-            if (currentMovie) {
-                movies.push(currentMovie);
-            }
+            if (currentMovie) movies.push(currentMovie);
 
             movies.sort(() => Math.random() - 0.5);
             allParsedMovies = movies;
-
             renderMoreMovies(pageSize);
 
             const landingOverlay = document.getElementById('movieLanding');
@@ -868,12 +824,19 @@
                     renderMoreMovies(pageSize);
                 }
             });
+
+            window.addEventListener('message', (event) => {
+                if (event.data === 'video_played' || event.data === 'play') {
+                    const rFrame = document.getElementById('radioIframe');
+                    rFrame.src = "about:blank";
+                    rFrame.classList.remove('active');
+                }
+            });
         });
 
         function renderMoreMovies(count) {
             const container = document.getElementById('moviesListContainer');
             const endIndex = Math.min(renderedCount + count, allParsedMovies.length);
-            
             if (renderedCount >= allParsedMovies.length) return;
 
             for (let i = renderedCount; i < endIndex; i++) {
@@ -886,9 +849,7 @@
                 btn.dataset.title = movie.title.toLowerCase();
                 
                 let innerHtmlContent = `<div class="movie-btn-content">`;
-                if (movie.poster) {
-                    innerHtmlContent += `<img src="${movie.poster}" class="movie-poster" alt="">`;
-                }
+                if (movie.poster) innerHtmlContent += `<img src="${movie.poster}" class="movie-poster" alt="">`;
                 innerHtmlContent += `<span>${movie.title}</span></div>`;
 
                 if (movie.subButtons.length > 0) {
@@ -897,8 +858,7 @@
                     btn.onclick = () => {
                         card.classList.toggle('open');
                         const spans = btn.querySelectorAll('span');
-                        const arrowSpan = spans[spans.length - 1];
-                        arrowSpan.textContent = card.classList.contains('open') ? 'Свернуть ▲' : 'Развернуть ▼';
+                        spans[spans.length - 1].textContent = card.classList.contains('open') ? 'Свернуть ▲' : 'Развернуть ▼';
                     };
                 } else {
                     innerHtmlContent += `<span>Смотреть ▶</span>`;
@@ -910,7 +870,6 @@
                 if (movie.subButtons.length > 0) {
                     const subContainer = document.createElement('div');
                     subContainer.className = 'sub-buttons-container';
-
                     movie.subButtons.forEach(sub => {
                         const subBtn = document.createElement('button');
                         subBtn.className = 'sub-movie-btn';
@@ -919,10 +878,8 @@
                         subBtn.onclick = () => openMovie(sub.url);
                         subContainer.appendChild(subBtn);
                     });
-
                     card.appendChild(subContainer);
                 }
-
                 container.appendChild(card);
             }
             renderedCount = endIndex;
@@ -930,90 +887,99 @@
 
         function filterMovies() {
             const query = document.getElementById('movieSearchInput').value.toLowerCase().trim();
-            
             if (isMusicOpen && query.length > 0) {
                 toggleMusicPlayer();
             }
-
             if (query.length < 3) {
                 document.querySelectorAll('.movies-list-container button').forEach(btn => btn.classList.remove('highlighted'));
                 return;
             }
-
             let found = false;
             document.querySelectorAll('.movies-list-container button').forEach(btn => {
                 if ((btn.dataset.title || "").includes(query)) found = true;
             });
-
             if (!found && renderedCount < allParsedMovies.length) {
                 renderMoreMovies(allParsedMovies.length);
             }
-
             const allButtons = document.querySelectorAll('.movies-list-container button');
             allButtons.forEach(btn => btn.classList.remove('highlighted'));
-
             let firstMatch = null;
             allButtons.forEach(btn => {
-                const title = btn.dataset.title || "";
-                if (title.includes(query)) {
+                if ((btn.dataset.title || "").includes(query)) {
                     btn.classList.add('highlighted');
-                    
                     if (btn.classList.contains('sub-movie-btn')) {
                         const card = btn.closest('.movie-card');
                         if (card) {
                             card.classList.add('open');
                             const spans = card.querySelectorAll('.movie-btn span');
-                            const arrowSpan = spans[spans.length - 1];
-                            if (arrowSpan) arrowSpan.textContent = 'Свернуть ▲';
+                            if (spans.length) spans[spans.length - 1].textContent = 'Свернуть ▲';
                         }
                     }
-
-                    if (!firstMatch) {
-                        firstMatch = btn;
-                    }
+                    if (!firstMatch) firstMatch = btn;
                 }
             });
-
-            if (firstMatch) {
-                firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            if (firstMatch) firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         function openMovie(movieUrl) {
+            if (isMusicOpen) closeMusicPlayerState();
             history.pushState({ view: 'player' }, '', '#player');
-            document.getElementById('siteIframe').src = movieUrl;
+            const siteIframe = document.getElementById('siteIframe');
+            const radioIframe = document.getElementById('radioIframe');
+            
+            // Выключаем радио при переходе в фильм
+            radioIframe.src = "about:blank";
+            radioIframe.classList.remove('active');
+
+            siteIframe.src = movieUrl;
+            siteIframe.classList.add('active');
+            hideAllOverlays();
+        }
+
+        function openRadio() {
+            if (isMusicOpen) closeMusicPlayerState();
+            history.pushState({ view: 'radio' }, '', '#radio');
+            const siteIframe = document.getElementById('siteIframe');
+            const radioIframe = document.getElementById('radioIframe');
+            
+            siteIframe.classList.remove('active');
+            siteIframe.src = "about:blank";
+
+            radioIframe.src = "https://directory.shoutcast.com/";
+            radioIframe.classList.add('active');
             hideAllOverlays();
         }
 
         function showAllOverlays() {
-            const landing = document.getElementById('movieLanding');
-            if (landing) {
-                landing.style.display = 'flex';
-                setTimeout(() => {
-                    landing.style.opacity = '1';
-                    landing.style.transform = 'scale(1)';
-                }, 10);
+            if (isMusicOpen) {
+                closeMusicPlayerState();
             }
-        }
+            const landing = document.getElementById('movieLanding');
+            if (landing) landing.style.display = 'flex';
+            
+            const siteIframe = document.getElementById('siteIframe');
+            siteIframe.classList.remove('active');
+            siteIframe.src = "about:blank";
 
-        function hideAllOverlays() {
-            const landing = document.getElementById('movieLanding');
-            if (landing) {
-                landing.style.opacity = '0';
-                landing.style.transform = 'scale(0.98)';
-                setTimeout(() => {
-                    landing.style.display = 'none';
-                }, 300);
+            const radioIframe = document.getElementById('radioIframe');
+            
+            // Возвращаем радио на экран без перезагрузки, если оно уже было запущено
+            if (!radioIframe.classList.contains('active') && radioIframe.src !== "https://directory.shoutcast.com/") {
+                radioIframe.src = "https://directory.shoutcast.com/";
             }
+            radioIframe.classList.add('active');
         }
 
         window.addEventListener('popstate', (event) => {
             showAllOverlays();
-            document.getElementById('siteIframe').src = "about:blank";
         });
 
-        const videoSource = "https://.m3u8"; 
+        function hideAllOverlays() {
+            const landing = document.getElementById('movieLanding');
+            if (landing) landing.style.display = 'none';
+        }
 
+        const videoSource = "https://.m3u8"; 
         const video = document.getElementById('videoElement');
         video.volume = 1.0;
 
@@ -1029,42 +995,13 @@
             video.src = videoSource;
         }
 
-        const containerElem = document.getElementById('streamContainer');
-
-        function updateLayoutForKeyboard() {
-            if (window.visualViewport) {
-                containerElem.style.height = window.visualViewport.height + 'px';
-                window.scrollTo(0, 0);
-            }
-        }
-
-        if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', updateLayoutForKeyboard);
-            window.visualViewport.addEventListener('scroll', updateLayoutForKeyboard);
-        }
-
         let wakeLock = null;
         async function requestWakeLock() {
             if ('wakeLock' in navigator) {
-                try {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    wakeLock.addEventListener('release', () => {
-                        wakeLock = null;
-                    });
-                } catch (err) {}
+                try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
             }
         }
-
         requestWakeLock();
-
-        document.addEventListener('visibilitychange', async () => {
-            if (wakeLock !== null && document.visibilityState === 'visible') {
-                await requestWakeLock();
-            }
-            if (document.visibilityState === 'visible') {
-                startKeepAlive();
-            }
-        });
 
         const keepAliveAudio = document.getElementById('keepAliveAudio');
         function startKeepAlive() {
@@ -1072,18 +1009,9 @@
                 keepAliveAudio.play().catch(() => {});
             }
         }
-
         window.addEventListener('click', startKeepAlive, { once: true });
         window.addEventListener('touchstart', startKeepAlive, { once: true });
         setTimeout(startKeepAlive, 1000);
-
-        setInterval(() => {
-            startKeepAlive();
-            if ('wakeLock' in navigator && wakeLock === null && document.visibilityState === 'visible') {
-                requestWakeLock();
-            }
-        }, 10000);
     </script>
-
 </body>
 </html>
