@@ -129,6 +129,7 @@
             margin-bottom: 16px;
             flex-shrink: 0;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .landing-search-btn {
@@ -154,7 +155,7 @@
             transform: scale(0.98);
         }
 
-        .landing-random-btn {
+        .landing-random-btn, .landing-music-btn, .landing-telegram-btn {
             background: rgba(26, 26, 26, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: #ffffff;
@@ -171,34 +172,13 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .landing-random-btn:hover {
+        .landing-random-btn:hover, .landing-music-btn:hover, .landing-telegram-btn:hover {
             background: rgba(37, 37, 37, 0.95);
             border-color: #a855f7;
         }
 
-        .landing-random-btn:active {
+        .landing-random-btn:active, .landing-music-btn:active, .landing-telegram-btn:active {
             transform: scale(0.98);
-        }
-
-        .landing-music-btn {
-            background: rgba(26, 26, 26, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #ffffff;
-            width: 46px;
-            height: 46px;
-            border-radius: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .landing-music-btn:hover {
-            background: rgba(37, 37, 37, 0.95);
-            border-color: #a855f7;
         }
 
         .landing-music-btn.active {
@@ -207,44 +187,17 @@
             box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
         }
 
-        .landing-music-btn:active {
-            transform: scale(0.98);
-        }
-
-        .landing-music-btn svg {
+        .landing-music-btn svg, .landing-telegram-btn svg {
             width: 20px;
             height: 20px;
             fill: #ffffff;
         }
 
-        .landing-telegram-btn {
-            background: rgba(26, 26, 26, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #ffffff;
-            width: 46px;
-            height: 46px;
-            border-radius: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
         .landing-telegram-btn:hover {
-            background: rgba(37, 37, 37, 0.95);
             border-color: #24a1de;
         }
 
-        .landing-telegram-btn:active {
-            transform: scale(0.98);
-        }
-
         .landing-telegram-btn svg {
-            width: 20px;
-            height: 20px;
             fill: #24a1de;
         }
 
@@ -531,6 +484,41 @@
             transform: scale(0.95);
         }
 
+        /* Кнопка установки под кнопкой ссылки — всегда видна */
+        .chat-install-btn {
+            position: absolute;
+            top: 40px; /* Точно под первой кнопкой (6px + 28px отступ + 6px промежуток) */
+            right: 8px;
+            z-index: 15;
+            background: rgba(26, 26, 26, 0.75);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .chat-install-btn:hover {
+            background: rgba(37, 37, 37, 0.9);
+            border-color: #a855f7;
+        }
+
+        .chat-install-btn:active {
+            transform: scale(0.95);
+        }
+
+        .chat-install-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: #ffffff;
+        }
+
         .chat-box iframe {
             width: 100%;
             height: 100%;
@@ -608,7 +596,16 @@
 
         <div class="chat-overlay" id="chatOverlay">
             <div class="chat-box">
+                <!-- Кнопка ссылки -->
                 <a href="https://strmweb.github.io/room/" target="_blank" class="chat-room-btn" title="Room">🔗</a>
+                
+                <!-- Кнопка установки (теперь всегда видна прямо под кнопкой ссылки) -->
+                <button class="chat-install-btn" id="installAppBtn" onclick="installPWA()" title="Установить приложение">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                </button>
+
                 <iframe src="https://www5.cbox.ws/box/?boxid=967420&boxtag=E05Ods" width="100%" height="300" allowtransparency="yes" allow="autoplay" frameborder="0" marginheight="0" marginwidth="0" scrolling="auto"></iframe>	
             </div>
         </div>
@@ -619,6 +616,30 @@
     </audio>
 
     <script>
+        let deferredPrompt = null;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('Приложение установлено');
+                }
+                deferredPrompt = null;
+            } else {
+                alert('Установка доступна через меню браузера ("Добавить на главный экран" или "Установить приложение"), либо приложение уже установлено.');
+            }
+        }
+
+        window.addEventListener('appinstalled', () => {
+            deferredPrompt = null;
+        });
+
         if (performance.navigation.type === 2 || window.performance.getEntriesByType("navigation")[0]?.type === "back_forward") {
             sessionStorage.clear();
             window.location.replace(window.location.pathname);
