@@ -6,7 +6,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://directory.shoutcast.com">
     <link rel="dns-prefetch" href="https://directory.shoutcast.com">
-    <title>STRMWEB</title>
+    <title></title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         * {
@@ -932,6 +932,20 @@
             radioIframe.src = "https://directory.shoutcast.com/";
             radioIframe.classList.add('active');
 
+            // --- ОБРАБОТКА ХЭША (ВНЕДРИЛИ СЮДА) ---
+            const hashValue = decodeURIComponent(window.location.hash.replace('#', '').trim());
+            // Исключаем системные хэши вида #music, #player, #radio, чтобы они не падали в поисковую строку как текст фильма
+            if (hashValue && !['music', 'player', 'radio'].includes(hashValue.toLowerCase())) {
+                const searchInput = document.getElementById('movieSearchInput');
+                if (searchInput) {
+                    searchInput.value = hashValue;
+                }
+            } else if (window.location.hash && !['#music', '#player', '#radio'].includes(window.location.hash)) {
+                // Очищаем хэш, если это не системный экран
+                history.replaceState(null, '', window.location.pathname);
+            }
+            // ----------------------------------------
+
             const lines = rawMoviesText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
             let movies = [];
             let currentMovie = null;
@@ -969,6 +983,11 @@
             allParsedMovies = movies;
             renderMoreMovies(pageSize);
 
+            // Если при загрузке был передан хэш для поиска — сразу запускаем фильтрацию
+            if (hashValue && !['music', 'player', 'radio'].includes(hashValue.toLowerCase())) {
+                filterMovies();
+            }
+
             const landingWrapper = document.getElementById('landingScrollWrapper');
             landingWrapper.addEventListener('scroll', () => {
                 if (landingWrapper.scrollTop + landingWrapper.clientHeight >= landingWrapper.scrollHeight - 200) {
@@ -984,25 +1003,6 @@
                     rFrame.classList.remove('active');
                 }
             });
-        });
-
-        // Автоматический поиск и открытие фильма по хэшу в URL (поддерживает пробелы и русские буквы)
-        window.addEventListener('DOMContentLoaded', () => {
-            const hash = decodeURIComponent(window.location.hash.replace(/^#/, '').trim());
-            if (hash) {
-                const searchInput = document.getElementById('movieSearchInput');
-                if (searchInput) {
-                    searchInput.value = hash; // Подставляем как есть с пробелами
-                    filterMovies();
-                    
-                    setTimeout(() => {
-                        const highlighted = document.querySelector('.movies-list-container button.highlighted');
-                        if (highlighted && typeof highlighted.onclick === 'function') {
-                            highlighted.click();
-                        }
-                    }, 300);
-                }
-            }
         });
 
         function renderMoreMovies(count) {
