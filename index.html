@@ -778,10 +778,9 @@
                     'controls': 1,
                     'playsinline': 1,
                     'enablejsapi': 1,
-                    'modestbranding': 1,
-                    'rel': 0,
-                    'iv_load_policy': 3,
-                    'hl': 'ru', // Указываем локаль, уменьшающую часть таргетированной рекламы
+                    'modestbranding': 1, // Убирает лишний брендинг
+                    'rel': 0,            // Убирает сторонние рекомендации в конце
+                    'iv_load_policy': 3, // Отключает всплывающие аннотации и баннеры
                     'origin': window.location.origin
                 },
                 events: {
@@ -801,16 +800,6 @@
                     },
                     'onStateChange': (event) => {
                         startKeepAlive();
-                        
-                        // Если плеер перешел в состояние воспроизведения рекламы (в YouTube API нет прямого статуса рекламы, но можно отслеживать сбои тайминга или использовать трюк с ускорением)
-                        try {
-                            // Ускоряем воспроизведение в 4 раза, если реклама всё же пробивается (помогает быстро её проскочить)
-                            if (ytPlayer && typeof ytPlayer.getDuration === 'function') {
-                                const iframe = document.querySelector('#youtubePlayerContainer iframe');
-                                // Дополнительная проверка на элементы рекламы внутри iframe, если доступно
-                            }
-                        } catch(e) {}
-
                         if (event.data === YT.PlayerState.PAUSED && document.hidden) {
                             setTimeout(() => {
                                 if (document.hidden && ytPlayer && typeof ytPlayer.playVideo === 'function') {
@@ -1140,7 +1129,7 @@
         }
 
         let wakeLock = null;
-        async function requestWakeLock(event, ...args) {
+        async function requestWakeLock(event) {
             if ('wakeLock' in navigator) {
                 try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
             }
