@@ -805,6 +805,7 @@ https://argentina-angliya-match.sbs/film/38472/
         let playlistUrls = [];
         let currentPlaylistIndex = 0;
         let isMusicOpen = false;
+        let isYouTubeApiLoaded = false;
 
         let allParsedMovies = [];
         let renderedCount = 0;
@@ -815,9 +816,14 @@ https://argentina-angliya-match.sbs/film/38472/
         const firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+        // Глобальный回调 для YouTube API (не создает плеер автоматически при загрузке)
         function onYouTubeIframeAPIReady() {
+            isYouTubeApiLoaded = true;
             playlistUrls = rawPlaylistsText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-            if (playlistUrls.length === 0) return;
+        }
+
+        function initYouTubePlayer() {
+            if (ytPlayer || playlistUrls.length === 0) return;
 
             currentPlaylistIndex = Math.floor(Math.random() * playlistUrls.length);
             const selectedListUrl = playlistUrls[currentPlaylistIndex];
@@ -937,7 +943,11 @@ https://argentina-angliya-match.sbs/film/38472/
                 musicBtn.classList.add('active');
                 musicView.classList.add('active');
                 moviesList.classList.add('hidden');
-                if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
+
+                // Создаем и запускаем YouTube плеер только при первом или последующих открытиях музыки
+                if (!ytPlayer && isYouTubeApiLoaded) {
+                    initYouTubePlayer();
+                } else if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
                     ytPlayer.playVideo();
                 }
             } else {
@@ -964,16 +974,14 @@ https://argentina-angliya-match.sbs/film/38472/
             radioIframe.src = "https://directory.shoutcast.com/";
             radioIframe.classList.add('active');
 
-            // --- ОБРАБОТКА ХЭША (ВНЕДРИЛИ СЮДА) ---
+            // --- ОБРАБОТКА ХЭША ---
             const hashValue = decodeURIComponent(window.location.hash.replace('#', '').trim());
-            // Исключаем системные хэши вида #music, #player, #radio, чтобы они не падали в поисковую строку как текст фильма
             if (hashValue && !['music', 'player', 'radio'].includes(hashValue.toLowerCase())) {
                 const searchInput = document.getElementById('movieSearchInput');
                 if (searchInput) {
                     searchInput.value = hashValue;
                 }
             } else if (window.location.hash && !['#music', '#player', '#radio'].includes(window.location.hash)) {
-                // Очищаем хэш, если это не системный экран
                 history.replaceState(null, '', window.location.pathname);
             }
             // ----------------------------------------
@@ -1015,7 +1023,6 @@ https://argentina-angliya-match.sbs/film/38472/
             allParsedMovies = movies;
             renderMoreMovies(pageSize);
 
-            // Если при загрузке был передан хэш для поиска — сразу запускаем фильтрацию
             if (hashValue && !['music', 'player', 'radio'].includes(hashValue.toLowerCase())) {
                 filterMovies();
             }
