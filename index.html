@@ -105,7 +105,6 @@
             overflow: hidden;
         }
 
-        /* Обертка для контента ленты */
         .landing-scroll-wrapper {
             flex-grow: 1;
             overflow-y: auto;
@@ -115,7 +114,6 @@
             flex-direction: column;
         }
 
-        /* Кнопки прокрутки в виде узкой полочки */
         .static-sidebar-scroll {
             position: absolute;
             right: 0px;
@@ -552,7 +550,6 @@
                 <div class="brand-logo-text">STRMWEB</div>
             </a>
 
-            <!-- Узкие кнопки прокрутки в виде полочки с треугольниками -->
             <div class="static-sidebar-scroll">
                 <button class="scroll-static-btn" onclick="scrollContent(-300)" title="Вверх">
                     <svg viewBox="0 0 24 24"><path d="M12 8l-6 8h12z"/></svg>
@@ -587,7 +584,7 @@
                         <div id="youtubePlayerContainer"></div>
                     </div>
                     <div class="music-controls-bar">
-                        <button class="music-ctrl-btn" onclick="nextSong()">◀◀ </button>
+                        <button class="music-ctrl-btn" onclick="prevSong()">◀◀ </button>
                         <button class="music-ctrl-btn" onclick="nextSong()">▶▶</button>
                     </div>
                     <div class="equalizer-container">
@@ -767,22 +764,40 @@
             const listIdMatch = selectedListUrl.match(/[?&]list=([^#\&\?]+)/);
             const listId = listIdMatch ? listIdMatch[1] : '';
 
+            // Генерируем случайный стартовый индекс для первого запуска
+            const randomStartIndex = Math.floor(Math.random() * 35);
+
             ytPlayer = new YT.Player('youtubePlayerContainer', {
                 height: '100%',
                 width: '100%',
                 playerVars: {
                     'listType': 'playlist',
                     'list': listId,
+                    'index': randomStartIndex, // Рандомный трек при старте
                     'autoplay': 1,
                     'shuffle': 1,
                     'controls': 1,
                     'playsinline': 1,
                     'enablejsapi': 1,
+                    'modestbranding': 1,
+                    'rel': 0,
+                    'iv_load_policy': 3,
                     'origin': window.location.origin
                 },
                 events: {
                     'onReady': (event) => {
                         event.target.setShuffle({ shuffle: true });
+                        event.target.playVideoAt(randomStartIndex);
+                    },
+                    'onError': (event) => {
+                        console.warn('Видео недоступно или заблокировано (ошибка ' + event.data + '), пропускаем...');
+                        setTimeout(() => {
+                            if (ytPlayer && typeof ytPlayer.nextVideo === 'function') {
+                                ytPlayer.nextVideo();
+                            } else {
+                                nextSong();
+                            }
+                        }, 50);
                     },
                     'onStateChange': (event) => {
                         startKeepAlive();
@@ -804,27 +819,45 @@
         function nextSong() {
             startKeepAlive();
             if (!ytPlayer || playlistUrls.length === 0) return;
-            if (playlistUrls.length > 1) {
-                let nextIdx;
-                do {
-                    nextIdx = Math.floor(Math.random() * playlistUrls.length);
-                } while (nextIdx === currentPlaylistIndex);
-                currentPlaylistIndex = nextIdx;
-            } else {
-                currentPlaylistIndex = 0;
-            }
+
+            try {
+                if (typeof ytPlayer.nextVideo === 'function' && Math.random() > 0.3) {
+                    ytPlayer.nextVideo();
+                    return;
+                }
+            } catch (e) {}
+
+            let nextIdx;
+            do {
+                nextIdx = Math.floor(Math.random() * playlistUrls.length);
+            } while (nextIdx === currentPlaylistIndex && playlistUrls.length > 1);
+            
+            currentPlaylistIndex = nextIdx;
             const selectedListUrl = playlistUrls[currentPlaylistIndex];
             const listIdMatch = selectedListUrl.match(/[?&]list=([^#\&\?]+)/);
             const listId = listIdMatch ? listIdMatch[1] : '';
+            
             if (listId) {
-                ytPlayer.loadPlaylist({
+                const randomStartIndex = Math.floor(Math.random() * 40);
+                
+                ytPlayer.cuePlaylist({
                     list: listId,
                     listType: 'playlist',
-                    index: Math.floor(Math.random() * 15),
-                    suggestedQuality: 'medium'
+                    index: randomStartIndex,
+                    suggestedQuality: 'small'
                 });
                 ytPlayer.setShuffle({ shuffle: true });
-                ytPlayer.playVideo();
+                ytPlayer.playVideoAt(randomStartIndex);
+            }
+        }
+
+        function prevSong() {
+            startKeepAlive();
+            if (!ytPlayer) return;
+            if (typeof ytPlayer.previousVideo === 'function') {
+                ytPlayer.previousVideo();
+            } else {
+                nextSong();
             }
         }
 
@@ -1097,7 +1130,7 @@
         }
 
         let wakeLock = null;
-        async function requestWakeLock() {
+        async function requestWakeLock(event) {
             if ('wakeLock' in navigator) {
                 try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {}
             }
