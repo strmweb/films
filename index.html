@@ -6,7 +6,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://directory.shoutcast.com">
     <link rel="dns-prefetch" href="https://directory.shoutcast.com">
-    <title></title>
+    <title>STRMWEB</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         * {
@@ -806,9 +806,9 @@
                     'controls': 1,
                     'playsinline': 1,
                     'enablejsapi': 1,
-                    'modestbranding': 1, // Убирает лишний брендинг
-                    'rel': 0,            // Убирает сторонние рекомендации в конце
-                    'iv_load_policy': 3, // Отключает всплывающие аннотации и баннеры
+                    'modestbranding': 1,
+                    'rel': 0,
+                    'iv_load_policy': 3,
                     'origin': window.location.origin
                 },
                 events: {
@@ -932,10 +932,6 @@
             radioIframe.src = "https://directory.shoutcast.com/";
             radioIframe.classList.add('active');
 
-            if (window.location.hash) {
-                history.replaceState(null, '', window.location.pathname);
-            }
-
             const lines = rawMoviesText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
             let movies = [];
             let currentMovie = null;
@@ -988,6 +984,25 @@
                     rFrame.classList.remove('active');
                 }
             });
+        });
+
+        // Автоматический поиск и открытие фильма по хэшу в URL (поддерживает пробелы и русские буквы)
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = decodeURIComponent(window.location.hash.replace(/^#/, '').trim());
+            if (hash) {
+                const searchInput = document.getElementById('movieSearchInput');
+                if (searchInput) {
+                    searchInput.value = hash; // Подставляем как есть с пробелами
+                    filterMovies();
+                    
+                    setTimeout(() => {
+                        const highlighted = document.querySelector('.movies-list-container button.highlighted');
+                        if (highlighted && typeof highlighted.onclick === 'function') {
+                            highlighted.click();
+                        }
+                    }, 300);
+                }
+            }
         });
 
         function renderMoreMovies(count) {
