@@ -949,6 +949,7 @@ https://argentina-angliya-match.sbs/film/38472/
             } else {
                 closeMusicPlayerState();
             }
+            shuffleAndResetMovies();
         }
 
         function closeMusicPlayerState() {
@@ -962,6 +963,18 @@ https://argentina-angliya-match.sbs/film/38472/
             moviesList.classList.remove('hidden');
             if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
                 ytPlayer.pauseVideo();
+            }
+        }
+
+        function shuffleAndResetMovies() {
+            if (allParsedMovies.length > 0) {
+                allParsedMovies.sort(() => Math.random() - 0.5);
+                const container = document.getElementById('moviesListContainer');
+                container.innerHTML = '';
+                renderedCount = 0;
+                renderMoreMovies(pageSize);
+                const landingWrapper = document.getElementById('landingScrollWrapper');
+                if (landingWrapper) landingWrapper.scrollTop = 0;
             }
         }
 
@@ -1013,9 +1026,8 @@ https://argentina-angliya-match.sbs/film/38472/
             }
             if (currentMovie) movies.push(currentMovie);
 
-            movies.sort(() => Math.random() - 0.5);
             allParsedMovies = movies;
-            renderMoreMovies(pageSize);
+            shuffleAndResetMovies();
 
             if (hashValue && !['music', 'player', 'radio'].includes(hashValue.toLowerCase())) {
                 filterMovies();
@@ -1175,6 +1187,7 @@ https://argentina-angliya-match.sbs/film/38472/
                 radioIframe.src = "https://directory.shoutcast.com/";
             }
             radioIframe.classList.add('active');
+            shuffleAndResetMovies();
         }
 
         window.addEventListener('popstate', (event) => {
