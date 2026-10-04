@@ -128,6 +128,29 @@
             pointer-events: none;
         }
 
+        /* Дополнительный сайдбар поверх фреймов */
+        .iframe-sidebar-scroll {
+            position: absolute;
+            right: 0px;
+            top: 12px;
+            bottom: 12px;
+            width: 8px;
+            z-index: 25;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s;
+        }
+
+        .iframe-sidebar-scroll.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
         .scroll-static-btn {
             pointer-events: auto;
             background: rgba(26, 26, 26, 0.95);
@@ -551,10 +574,10 @@
             </a>
 
             <div class="static-sidebar-scroll">
-                <button class="scroll-static-btn" onclick="scrollContent(-300)" title="Вверх">
+                <button class="scroll-static-btn" onclick="scrollContent(-120)" title="Вверх">
                     <svg viewBox="0 0 24 24"><path d="M12 8l-6 8h12z"/></svg>
                 </button>
-                <button class="scroll-static-btn" onclick="scrollContent(300)" title="Вниз">
+                <button class="scroll-static-btn" onclick="scrollContent(120)" title="Вниз">
                     <svg viewBox="0 0 24 24"><path d="M12 16l-6-8h12z"/></svg>
                 </button>
             </div>
@@ -602,6 +625,16 @@
         <div class="site-overlay">
             <iframe id="siteIframe" src="about:blank" allowfullscreen loading="eager"></iframe>
             <iframe id="radioIframe" src="about:blank" allowfullscreen allow="autoplay" loading="eager"></iframe>
+            
+            <!-- Сайдбар поверх фреймов -->
+            <div class="iframe-sidebar-scroll" id="iframeSidebarScroll">
+                <button class="scroll-static-btn" onclick="scrollContent(-120)" title="Вверх">
+                    <svg viewBox="0 0 24 24"><path d="M12 8l-6 8h12z"/></svg>
+                </button>
+                <button class="scroll-static-btn" onclick="scrollContent(120)" title="Вниз">
+                    <svg viewBox="0 0 24 24"><path d="M12 16l-6-8h12z"/></svg>
+                </button>
+            </div>
         </div>
 
         <video id="videoElement" class="video-player" autoplay playsinline controls></video>
@@ -762,7 +795,7 @@
 (https://argentina-angliya-match.sbs/film/5494049/ Человек-паук: Новый день)
 (https://argentina-angliya-match.sbs/series/5698586/ Паук-Наур)
 (https://argentina-angliya-match.sbs/series/95232/ Человек-паук 94)
-(https://argentina-angliya-match.sbs/series/582730/ Человек-паук и его удивительные друзья)
+(https://argentina-angliya-match.sbs/series/582730/ Человек-паук and его удивительные друзья)
 (https://argentina-angliya-match.sbs/series/481397/ Человек-паук 5000)
 (https://argentina-angliya-match.sbs/series/397484/ Грандиозный Человек-паук)
 (https://argentina-angliya-match.sbs/series/574690/ Великий Человек-паук)
@@ -774,7 +807,7 @@
 (https://argentina-angliya-match.sbs/film/4763456/ За пределами вселенной)
 (https://argentina-angliya-match.sbs/series/4711938/ Ваш дружелюбный сосед Человек-паук)
 (https://argentina-angliya-match.sbs/film/4367592/ Человек-паук: Лотос)
-(https://argentina-angliya-match.sbs/series/1301666/ Паучок и его удивительные друзья)
+(https://argentina-angliya-match.sbs/series/1301666/ Паучок and его удивительные друзья)
 (https://argentina-angliya-match.sbs/film/1302483/ Человек-паук: Одержимый Веномом)
 
 https://argentina-angliya-match.sbs/series/1320559/
@@ -825,7 +858,6 @@ https://argentina-angliya-match.sbs/film/38472/
         const firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        // Глобальный回调 для YouTube API (не создает плеер автоматически при загрузке)
         function onYouTubeIframeAPIReady() {
             isYouTubeApiLoaded = true;
             playlistUrls = rawPlaylistsText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -942,18 +974,19 @@ https://argentina-angliya-match.sbs/film/38472/
             const musicView = document.getElementById('musicPlayerView');
             const moviesList = document.getElementById('moviesListContainer');
             const radioIframe = document.getElementById('radioIframe');
+            const iframeSidebar = document.getElementById('iframeSidebarScroll');
 
             if (isMusicOpen) {
                 history.pushState({ view: 'music' }, '', '#music');
                 
                 radioIframe.src = "about:blank";
                 radioIframe.classList.remove('active');
+                iframeSidebar.classList.remove('active');
 
                 musicBtn.classList.add('active');
                 musicView.classList.add('active');
                 moviesList.classList.add('hidden');
 
-                // Создаем и запускаем YouTube плеер только при первом или последующих открытиях музыки
                 if (!ytPlayer && isYouTubeApiLoaded) {
                     initYouTubePlayer();
                 } else if (ytPlayer && typeof ytPlayer.playVideo === 'function') {
@@ -980,10 +1013,11 @@ https://argentina-angliya-match.sbs/film/38472/
 
         document.addEventListener("DOMContentLoaded", () => {
             const radioIframe = document.getElementById('radioIframe');
+            const iframeSidebar = document.getElementById('iframeSidebarScroll');
             radioIframe.src = "https://directory.shoutcast.com/";
             radioIframe.classList.add('active');
+            iframeSidebar.classList.add('active');
 
-            // --- ОБРАБОТКА ХЭША ---
             const hashValue = decodeURIComponent(window.location.hash.replace('#', '').trim());
             if (hashValue && !['music', 'player', 'radio'].includes(hashValue.toLowerCase())) {
                 const searchInput = document.getElementById('movieSearchInput');
@@ -993,7 +1027,6 @@ https://argentina-angliya-match.sbs/film/38472/
             } else if (window.location.hash && !['#music', '#player', '#radio'].includes(window.location.hash)) {
                 history.replaceState(null, '', window.location.pathname);
             }
-            // ----------------------------------------
 
             const lines = rawMoviesText.split('\n').map(line => line.trim()).filter(line => line.length > 0);
             let movies = [];
@@ -1049,6 +1082,7 @@ https://argentina-angliya-match.sbs/film/38472/
                     const rFrame = document.getElementById('radioIframe');
                     rFrame.src = "about:blank";
                     rFrame.classList.remove('active');
+                    document.getElementById('iframeSidebarScroll').classList.remove('active');
                 }
             });
         });
@@ -1148,12 +1182,14 @@ https://argentina-angliya-match.sbs/film/38472/
             history.pushState({ view: 'player' }, '', '#player');
             const siteIframe = document.getElementById('siteIframe');
             const radioIframe = document.getElementById('radioIframe');
+            const iframeSidebar = document.getElementById('iframeSidebarScroll');
             
             radioIframe.src = "about:blank";
             radioIframe.classList.remove('active');
 
             siteIframe.src = movieUrl;
             siteIframe.classList.add('active');
+            iframeSidebar.classList.add('active');
             hideAllOverlays();
         }
 
@@ -1163,12 +1199,14 @@ https://argentina-angliya-match.sbs/film/38472/
             history.pushState({ view: 'radio' }, '', '#radio');
             const siteIframe = document.getElementById('siteIframe');
             const radioIframe = document.getElementById('radioIframe');
+            const iframeSidebar = document.getElementById('iframeSidebarScroll');
             
             siteIframe.classList.remove('active');
             siteIframe.src = "about:blank";
 
             radioIframe.src = "https://directory.shoutcast.com/";
             radioIframe.classList.add('active');
+            iframeSidebar.classList.add('active');
             hideAllOverlays();
         }
 
@@ -1185,11 +1223,13 @@ https://argentina-angliya-match.sbs/film/38472/
             siteIframe.src = "about:blank";
 
             const radioIframe = document.getElementById('radioIframe');
+            const iframeSidebar = document.getElementById('iframeSidebarScroll');
             
             if (!radioIframe.classList.contains('active') && radioIframe.src !== "https://directory.shoutcast.com/") {
                 radioIframe.src = "https://directory.shoutcast.com/";
             }
             radioIframe.classList.add('active');
+            iframeSidebar.classList.add('active');
         }
 
         window.addEventListener('popstate', (event) => {
