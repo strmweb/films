@@ -57,7 +57,6 @@
             background: #000;
         }
 
-        /* Делаем контейнер сайта на 100% высоты, чтобы прилипающая реклама уходила в самый низ экрана */
         .site-overlay {
             position: absolute;
             top: 0;
@@ -104,6 +103,11 @@
             flex-direction: column;
             padding: 0; 
             overflow: hidden;
+            transition: bottom 0.3s ease;
+        }
+
+        .movie-landing-overlay.chat-collapsed {
+            bottom: 40px; 
         }
 
         .landing-scroll-wrapper {
@@ -446,7 +450,6 @@
             transform: scale(1.02);
         }
 
-        /* Чат лежит на самом низу с высотой 33%, перекрывает рекламу с z-index: 100 */
         .chat-overlay {
             position: absolute;
             bottom: 0;
@@ -459,6 +462,11 @@
             justify-content: flex-end;
             padding: 0;
             z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .chat-overlay.collapsed {
+            transform: translateY(calc(100% - 28px)); 
         }
 
         .chat-box {
@@ -469,9 +477,39 @@
             background: transparent;
         }
 
-        .chat-room-btn {
+        /* Кнопка сворачивания/разворачивания чата — теперь в правом ряду первая (самая верхняя) и квадратная */
+        .chat-toggle-btn {
             position: absolute;
             top: 6px;
+            right: 8px;
+            z-index: 15;
+            background: rgba(26, 26, 26, 0.75);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-toggle-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: #ffffff;
+            transition: transform 0.3s;
+        }
+
+        .chat-overlay.collapsed .chat-toggle-btn svg {
+            transform: rotate(180deg);
+        }
+
+        .chat-room-btn {
+            position: absolute;
+            top: 40px;
             right: 8px;
             z-index: 15;
             background: rgba(26, 26, 26, 0.75);
@@ -491,7 +529,7 @@
 
         .chat-install-btn {
             position: absolute;
-            top: 40px; 
+            top: 74px; 
             right: 8px;
             z-index: 15;
             background: rgba(26, 26, 26, 0.75);
@@ -515,7 +553,7 @@
 
         .chat-radio-btn {
             position: absolute;
-            top: 74px; 
+            top: 108px; 
             right: 8px;
             z-index: 15;
             background: rgba(26, 26, 26, 0.75);
@@ -613,6 +651,10 @@
 
         <div class="chat-overlay" id="chatOverlay">
             <div class="chat-box">
+                <button class="chat-toggle-btn" onclick="toggleChat()" title="Свернуть/Развернуть чат">
+                    <svg viewBox="0 0 24 24"><path d="M7 14l5-5 5 5z"/></svg>
+                </button>
+
                 <a href="https://strmweb.github.io/room/" target="_blank" class="chat-room-btn" title="Room">𓁹</a>
                 
                 <button class="chat-install-btn" id="installAppBtn" onclick="installPWA()" title="Установить PWA">
@@ -644,6 +686,15 @@
             e.preventDefault();
             deferredPrompt = e;
         });
+
+        function toggleChat() {
+            startKeepAlive();
+            const chatOverlay = document.getElementById('chatOverlay');
+            const movieLanding = document.getElementById('movieLanding');
+            
+            chatOverlay.classList.toggle('collapsed');
+            movieLanding.classList.toggle('chat-collapsed');
+        }
 
         async function installPWA() {
             startKeepAlive();
